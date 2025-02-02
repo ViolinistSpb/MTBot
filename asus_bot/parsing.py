@@ -9,15 +9,22 @@ from bs4 import BeautifulSoup
 load_dotenv()
 
 FORMAT = "%H:%M:%S"
+
+# bot token
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+
+# user info
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+USERNAME = os.getenv('USERNAME')  # asus username
+USERPASSWORD = os.getenv('USERPASSWORD')  # asus password
+DAYS_TO_SEE = 2  # number of tracking days
+
 RETRY_PERIOD = 60
 LOGIN_URL = 'https://rep.mariinsky.ru/Account/Login'
 SCHEDULE_URL = 'https://rep.mariinsky.ru/Home/Schedule'
 REGISTRATION_URL = "https://rep.mariinsky.ru/Home/RegEmployee"
 DATES = ['Послезавтра:', 'Завтра:', 'Сегодня:']
 
-DAYS_TO_SEE = 2
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 
@@ -40,8 +47,8 @@ if __name__ == '__main__':
     print('Токен найден')
 
     data = {
-        'username': 'malkov@mariinsky.ru',
-        'password': '0t4=9x2E%1Yw',
+        'username': USERNAME,
+        'password': USERPASSWORD,
         '__RequestVerificationToken': token
     }
     response = session.post(LOGIN_URL, data=data)
