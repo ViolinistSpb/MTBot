@@ -1,0 +1,31 @@
+# Исключаем виртуальное окружение (venv)
+venv/
+.env/
+.env
+
+# Исключаем файлы кеша Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Исключаем файлы зависимостей (если используются)
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Исключаем настройки среды разработки
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Исключаем файлы логов и временные файлы
+logs/
+*.log
+*.tmp
+
+# Исключаем файлы Jupyter Notebook checkpoint
+.ipynb_checkpoints/
+
+# Исключаем файлы с конфиденциальными данными
+config.json
+secret_key.txt
