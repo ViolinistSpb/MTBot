@@ -1,4 +1,5 @@
 import os
+import time
 
 from telegram import Bot
 from telegram.ext import CommandHandler, Updater, Filters, MessageHandler
@@ -35,5 +36,18 @@ def main():
     updater.idle()
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
+class HTTPError(Exception):
+    """Пример кастомного исключения для теста (замени на реальную ошибку)."""
+    pass
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            main()
+            break  # Если main() успешно отработала, выходим из цикла
+        except Exception as e:
+            print(f"Ошибка: {e}. Повторный запуск через 2 секунды...")
+            time.sleep(2)

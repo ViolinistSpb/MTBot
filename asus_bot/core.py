@@ -50,20 +50,16 @@ def new_cat(update, context):
 
 
 def registration(update, context):
-    logger.info('say_hi')
+    logger.info('registration')
     message = update.message.text
     chat = update.effective_chat
-    text_mail = """
+    text_registration = """
     Введите адрес вашей корпоративной почты и пароль разделенные пробелом
 например:
 ivanov@mariinsky.ru abcd1234
 * Ваши данные будут храниться в зашифрованном виде"""
     if message == 'Войти в систему asus':
-        context.bot.send_message(chat_id=chat.id, text=text_mail)
-    else:
-        context.bot.send_message(
-            chat_id=chat.id, text='Не знаю что ответить на это :)'
-        )
+        context.bot.send_message(chat_id=chat.id, text=text_registration)
     if (
         len(message.split()) == 2
         and validate_email(message.split()[0])
@@ -73,24 +69,69 @@ ivanov@mariinsky.ru abcd1234
         password = message.split()[1]
         id = update.message.chat.id
         name = update.message.chat.first_name
-        new_data = [str(id), name, email, password]
-        with open("data.csv", "r", encoding="utf-8") as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row == new_data:
-                    context.bot.send_message(
-                        chat_id=chat.id,
-                        text='Вы уже регистрировали идентичные данные'
+        new_row = [str(id), name, email, password]
+
+        update_csv("data.csv", id, new_row, context)
+        # with open("data.csv", "r", encoding="utf-8") as file:
+        #     reader = csv.reader(file)
+        #     for row in reader:
+        #         if row == new_row:
+        #             context.bot.send_message(
+        #                 chat_id=chat.id,
+        #                 text='Вы уже регистрировали идентичные данные'
+        #             )
+        #             logger.info('double registration trying')
+        #             break
+        #     else:
+        #         with open("data.csv", "a",
+        #                   newline="", encoding="utf-8") as file:
+        #             writer = csv.writer(file)
+        #             writer.writerow(new_row)
+        #             logger.info('new data to data.csv')
+        #             context.bot.send_message(
+        #                 chat_id=chat.id,
+        #                 text='Спасибо, данные верны и будут храниться'
+        #                 'в зашифрованном виде!'
+        #                 'Дальнейшая логика в разработке')
+
+
+def update_csv(file_path, target_id, new_row, context):
+    """Обновляет строку в CSV-файле по первому элементу (ID)."""
+
+    rows = []
+    found = False
+    with open(file_path, mode="r", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row == new_row:
+                context.bot.send_message(
+                    chat_id=target_id,
+                    text='Вы уже регистрировали идентичные данные'
+                )
+                logger.info('double registration trying')
+                found = True
+            elif row and int(row[0]) == target_id:  # Ищем нужную строку по первому элементу
+                rows.append(new_row)  # Обновляем строку
+                context.bot.send_message(
+                    chat_id=target_id,
+                    text='Спасибо, данные перезаписаны'
                     )
-                    break
+                logger.info('update registration')
+                found = True
             else:
-                with open("data.csv", "a",
-                          newline="", encoding="utf-8") as file:
-                    writer = csv.writer(file)
-                    writer.writerow(new_data)
-                    print("Данные добавлены в data.csv!")
-                    context.bot.send_message(
-                        chat_id=chat.id,
-                        text='Спасибо, данные верны и будут храниться'
-                        'в зашифрованном виде!'
-                        'Дальнейшая логика в разработке')
+                rows.append(row)  # Оставляем без изменений
+    if not found:
+        rows.append(new_row)
+        context.bot.send_message(
+            chat_id=target_id,
+            text=('Спасибо, данные верны и будут храниться '
+                    'в зашифрованном виде! '
+                    'Дальнейшая логика в разработке')
+            )
+        logger.info('new data has written')
+
+    # Перезаписываем файл с обновлёнными данными
+    with open(file_path, mode="w", encoding="utf-8", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+        logger.info('file has rewritten')
