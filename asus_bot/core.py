@@ -1,14 +1,14 @@
 import csv
-import logging
 
 from telegram import ReplyKeyboardMarkup
 import requests
 
 from validators import validate_email, validate_password
+from logger_config import logger
 
 
 def start(update, context):
-    logging.info('start')
+    logger.info('start')
     chat = update.effective_chat
     user = update.message.chat.first_name
     buttons = ReplyKeyboardMarkup([['/start', 'Войти в систему asus'],
@@ -22,7 +22,7 @@ def start(update, context):
 
 
 def days(update, context):
-    print('days')
+    logger.info('days')
     chat = update.effective_chat
     buttons = ReplyKeyboardMarkup(
         [['/start', '/2', '/3'],
@@ -43,14 +43,14 @@ def get_new_image():
 
 
 def new_cat(update, context):
-    logging.info('new_cat')
+    logger.info('new_cat')
     print(update.message.text)
     chat = update.effective_chat
     context.bot.send_photo(chat.id, get_new_image())
 
 
 def say_hi(update, context):
-    logging.info('say_hi')
+    logger.info('say_hi')
     message = update.message.text
     chat = update.effective_chat
     text_mail = """
