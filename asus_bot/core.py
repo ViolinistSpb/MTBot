@@ -49,7 +49,7 @@ def new_cat(update, context):
     context.bot.send_photo(chat.id, get_new_image())
 
 
-def say_hi(update, context):
+def registration(update, context):
     logger.info('say_hi')
     message = update.message.text
     chat = update.effective_chat

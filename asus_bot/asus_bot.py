@@ -1,11 +1,9 @@
 import os
-import logging
-from logging.handlers import RotatingFileHandler
 
 from telegram import Bot
 from telegram.ext import CommandHandler, Updater, Filters, MessageHandler
 
-from core import days, new_cat, say_hi, start
+from core import days, new_cat, registration, start
 from dotenv import load_dotenv
 from logger_config import logger
 
@@ -31,7 +29,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('days_tracking', days))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text, say_hi))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text, registration))
 
     updater.start_polling()
     updater.idle()
