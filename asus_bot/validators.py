@@ -2,10 +2,10 @@ import re
 
 
 def validate_email(email):
-    pattern = r"^[a-zA-Z0-9._%+-]+@mariinsky\.ru$"
+    pattern = r"^[A-Za-z.]{2,20}$"
     return bool(re.match(pattern, email))
 
 
 def validate_password(password):
-    pattern = r"^[A-Za-z0-9]{1,20}$"
+    pattern = r"^[^\u0400-\u04FF]{1,30}$"
     return bool(re.match(pattern, password))
