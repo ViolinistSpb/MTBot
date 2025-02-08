@@ -20,6 +20,7 @@ HELP_MESSAGE = """Команды:
 """
 
 
+file_path = "data.csv"
 DAYS_TRACKING = 3
 BUTTONS = ReplyKeyboardMarkup(
     [['/start', 'Войти в систему asus'],
@@ -101,7 +102,7 @@ ivanov@mariinsky.ru abcd1234
         id = update.message.chat.id
         name = update.message.chat.first_name
         new_row = [str(id), name, email, password, str(DAYS_TRACKING)]
-        update_csv("data.csv", id, new_row, context, update)
+        update_csv(id, new_row, context, update)
         return
     else:
         logger.info(f'TypeError {update.message.chat.first_name}')
@@ -109,7 +110,7 @@ ivanov@mariinsky.ru abcd1234
             chat_id=chat.id, text='Неверный формат данных')
 
 
-def update_csv(file_path, target_id, new_row, context, update):
+def update_csv(target_id, new_row, context, update):
     """Обновляет или добавляет строку в CSV-файле по первому элементу."""
 
     rows = []
@@ -154,7 +155,7 @@ def update_csv(file_path, target_id, new_row, context, update):
         logger.info(f'file has rewritten {update.message.chat.first_name}')
 
 
-def update_day_csv(file_path, target_id, new_day, context, update):
+def update_day_csv(target_id, new_day, context, update):
     logger.info(f'update_day_csv {update.message.chat.first_name}')
     """Обновляет дни в CSV-файле в поиске по первому элементу."""
     rows = []
@@ -205,6 +206,7 @@ def my_schedule(update, context):
                     text=text,
                     parse_mode="HTML")
                 logger.info(f'data received {update.message.chat.first_name}')
+                add_schedule_to_csv(text, update, context)
 
 
 def check_registration(update, context):
@@ -232,12 +234,50 @@ def check_registration(update, context):
     return False
 
 
+def add_schedule_to_csv(text, update, context):
+    logger.info(f'add_schedule_to_csv {update.message.chat.first_name}')
+    print("add_schedule_to_csv")
+    """Добавляет текст в CSV-файл в поиске по первому элементу."""
+    rows = []
+    with open(file_path, mode="r", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if row and int(row[0]) == update.effective_chat.id:
+                if len(row) == 5:
+                    new_row = row.append(text)
+                if len(row) == 6:
+                    if row[-1] == text:
+                        break
+                    #  отправить уведомление
+                    # print('отправить уведомление')
+                    # notification(update, context)
+                    # my_schedule(update, context)
+                    new_row = row[:-1] + [text]
+                rows.append(new_row)
+            else:
+                rows.append(row)
+    with open(file_path, mode="w", encoding="utf-8", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+        logger.info(f'Schedule has changed {update.message.chat.first_name}')
+
+
+def notification(update, context):
+    print('notification')
+    logger.info(f'notification {update.message.chat.first_name}')
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text='В расписании произошли изменения!')
+
+
+def updating(file_path):
+    pass
+
+
 def two(update, context):
     logger.info(f'two {update.message.chat.first_name}')
     new_days = 2
-    update_day_csv(
-        "data.csv", update.effective_chat.id, new_days, context, update
-    )
+    update_day_csv(update.effective_chat.id, new_days, context, update)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Вы выбрали 2 дня для отслеживания',
@@ -248,8 +288,7 @@ def two(update, context):
 def three(update, context):
     logger.info(f'three {update.message.chat.first_name}')
     new_days = 3
-    update_day_csv(
-        "data.csv", update.effective_chat.id, new_days, context, update)
+    update_day_csv(update.effective_chat.id, new_days, context, update)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Вы выбрали 3 дня для отслеживания',
@@ -260,8 +299,7 @@ def three(update, context):
 def four(update, context):
     logger.info(f'four {update.message.chat.first_name}')
     new_days = 4
-    update_day_csv(
-        "data.csv", update.effective_chat.id, new_days, context, update)
+    update_day_csv(update.effective_chat.id, new_days, context, update)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Вы выбрали 4 дня для отслеживания',
@@ -272,8 +310,7 @@ def four(update, context):
 def five(update, context):
     logger.info(f'five {update.message.chat.first_name}')
     new_days = 5
-    update_day_csv(
-        "data.csv", update.effective_chat.id, new_days, context, update)
+    update_day_csv(update.effective_chat.id, new_days, context, update)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Вы выбрали 5 дней для отслеживания',
@@ -284,8 +321,7 @@ def five(update, context):
 def six(update, context):
     logger.info(f'six {update.message.chat.first_name}')
     new_days = 6
-    update_day_csv(
-        "data.csv", update.effective_chat.id, new_days, context, update)
+    update_day_csv(update.effective_chat.id, new_days, context, update)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Вы выбрали 6 дней для отслеживания',
@@ -296,8 +332,7 @@ def six(update, context):
 def seven(update, context):
     logger.info(f'seven {update.message.chat.first_name}')
     new_days = 7
-    update_day_csv(
-        "data.csv", update.effective_chat.id, new_days, context, update)
+    update_day_csv(update.effective_chat.id, new_days, context, update)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text='Вы выбрали 7 дней для отслеживания',

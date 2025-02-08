@@ -1,12 +1,13 @@
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
-import re
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests
 import telegram
+
+
+from validators import clean_day
 
 
 load_dotenv()
@@ -31,7 +32,8 @@ bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 
 def recieve_schedule(username, password, days):
-    response = get_response(username, password)
+    session = requests.session()
+    response = get_response(username, password, session)
     soup = BeautifulSoup(response.text, 'lxml')
     table = soup.find('table', attrs={'class': 'table table-hover'})
     all_tr = table.find_all('tr')
@@ -43,36 +45,19 @@ def recieve_schedule(username, password, days):
         message += div
         div_internal = tr.find_all('div', attrs={'class': 'col-md-2'})
         for d in div_internal:
-            href = d.find('a')
-            if href is not None:
-                href = urljoin(MAIN_URL, href["href"])
-                print(href)
-            message += " ".join(line.strip() for line in d.text.splitlines() if line.strip())
+            message += " ".join(
+                line.strip() for line in d.text.splitlines() if line.strip())
     list_message = message.split('%')
     final_message = ''
     for day in list_message[:1+int(days)]:
-        day = re.sub(r"(?<=[^\s])([А-Я])", r" \1", day)
-        day = re.sub(r"(Оркестр)(?!\n)", r"\1\n", day)
-        # day = re.sub(r"\d{2}:\d{2} - \d{2}:\d{2}", r"<b>\1</b>", day)
-        # day = re.sub(r")М\d", r"<b>\1</b>", day) <b><i>Жирный курсив</i></b>
-        pattern = r"([А-Я][а-я]) (\d{2}\.\d{2}\.\d{4})"  #  жирный шрифт к дате
-        day = re.sub(pattern, r"<b>\1 \2</b>", day)
-        pattern = r"(\d{2}:\d{2})( - )(\d{2}:\d{2})"  #  жирный шрифт ко времени
-        day = re.sub(pattern, r"<i>\1 \2 \3</i>", day)
-        pattern = r"([MМ][123])"  #  жирный шрифт ко времени
-        day = re.sub(pattern, r"<b><i>\1</i></b>", day)
-        words_to_remove = ["Первые скрипки", "Вторые скрипки", "Альты", "Оркестр"]
-        for word in words_to_remove:
-            day = day.replace(word, "")
-        final_message += day
+        final_message += clean_day(day)
     if final_message is not None:
         print('Данные отправлены')
     return final_message
 
 
-def get_response(username, password):
+def get_response(username, password, session):
     print('get_response func')
-    session = requests.session()
     response = session.get(LOGIN_URL)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'lxml')
@@ -89,12 +74,8 @@ def get_response(username, password):
     response = session.get(SCHEDULE_URL)
     soup = BeautifulSoup(response.text, 'lxml')
     if soup.find('hgroup', attrs={'class': 'title'}):
-        print('hgroup div found')
         return False
     if soup.find('table', attrs={'class': 'table table-hover'}):
-        print('table  found')
-        print('GOOD')
         return response
     else:
-        print('else')
         return response
