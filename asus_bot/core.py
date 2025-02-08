@@ -6,6 +6,7 @@ import requests
 from validators import validate_email, validate_password
 from logger_config import logger
 
+from db import add_new_user, check_user_exists
 from parsing_new import recieve_schedule, get_response
 
 
@@ -93,20 +94,19 @@ ivanov@mariinsky.ru abcd1234
         len(message.split()) == 2
         and validate_password(message.split()[1])
         # and validate_email(message.split()[0])
-        and check_registration(update, context)
+        # and check_registration(update, context)
     ):
-        print('all valid')
-        email = message.split()[0]
+        login = message.split()[0]
         password = message.split()[1]
-        id = update.message.chat.id
+        tg_id = update.message.chat.id
         name = update.message.chat.first_name
-        new_row = [str(id), name, email, password, str(DAYS_TRACKING)]
-        update_csv("data.csv", id, new_row, context, update)
-        return
-    else:
-        logger.info(f'TypeError {update.message.chat.first_name}')
-        context.bot.send_message(
-            chat_id=chat.id, text='Неверный формат данных')
+        days = DAYS_TRACKING
+        add_new_user(tg_id, name, login, password, days)
+    #     return
+    # else:
+    #     logger.info(f'TypeError {update.message.chat.first_name}')
+    #     context.bot.send_message(
+    #         chat_id=chat.id, text='Неверный формат данных')
 
 
 def update_csv(file_path, target_id, new_row, context, update):
