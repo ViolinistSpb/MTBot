@@ -11,6 +11,14 @@ def validate_password(password):
     return bool(re.match(pattern, password))
 
 
+def pre_clean_day(day):
+    words_to_remove = ["Первые скрипки", "Вторые скрипки", "Альты", "Оркестр",
+                       "Репетиция", "Спектакль"]
+    for word in words_to_remove:
+        day = day.replace(word, "")
+    return day
+
+
 def clean_day(day):
     day = re.sub(r"(?<=[^\s])([А-Я])", r" \1", day)
     day = re.sub(r"(Оркестр)(?!\n)", r"\1\n", day)
@@ -22,8 +30,4 @@ def clean_day(day):
     day = re.sub(pattern, r"<b><i>\1</i></b>", day)
     pattern = r"\([^()]*\)"
     day = day.replace(pattern, "")
-    words_to_remove = ["Первые скрипки", "Вторые скрипки", "Альты", "Оркестр",
-                       "Репетиция", "Спектакль"]
-    for word in words_to_remove:
-        day = day.replace(word, "")
     return day

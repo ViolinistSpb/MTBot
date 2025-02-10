@@ -7,6 +7,7 @@ from validators import validate_email, validate_password
 from logger_config import logger
 
 from parsing_new import recieve_schedule, get_response
+from validators import clean_day, pre_clean_day
 
 
 HELP_MESSAGE = """Команды:
@@ -35,7 +36,7 @@ def start(update, context):
     user = update.message.chat.first_name
     context.bot.send_message(
         chat_id=chat.id,
-        text=f'<b>{user}</b>, спасибо что присоединился к асус-боту! 🤖\n\n',
+        text=f'<b>{user}</b>, привет!\nСпасибо что присоединился к асус-боту! 🤖\n\n',
         reply_markup=BUTTONS,
         parse_mode="HTML"
     )
@@ -156,16 +157,26 @@ def update_csv(target_id, new_row, context, update):
 
 
 def update_day_csv(target_id, new_day, context, update):
+    print('updateday')
     logger.info(f'update_day_csv {update.message.chat.first_name}')
     """Обновляет дни в CSV-файле в поиске по первому элементу."""
     rows = []
     with open(file_path, mode="r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
-            if row and int(row[0]) == target_id:
-                new_row = row[:-1] + [new_day]
+            if row and isinstance(int(row[0]), int) and int(row[0]) == target_id:
+                print('found me')
+                if len(row) == 6:
+                    print('len=6')
+                    new_row = row[:4] + [new_day] + [row[-1]]
+                    print(new_row)
+                if len(row) == 5 or len(row) == 4:
+                    print(f'len={len(row)}')
+                    new_row = row[:4] + [new_day]
+                    print(new_row)
                 rows.append(new_row)
             else:
+                print('else')
                 rows.append(row)
     with open(file_path, mode="w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
@@ -196,17 +207,19 @@ def my_schedule(update, context):
     with open('data.csv', mode="r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
-            if row and int(row[0]) == update.effective_chat.id:
+            if row and isinstance(int(row[0]), int) and int(row[0]) == update.effective_chat.id:
                 email = row[2]
                 password = row[3]
                 days = row[4]
-                text = recieve_schedule(email, password, days)
+                raw_text = recieve_schedule(email, password, days)
+                text_for_csv = pre_clean_day(raw_text)
+                clear_text = clean_day(text_for_csv)
                 context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text=text,
+                    text=clear_text,
                     parse_mode="HTML")
                 logger.info(f'data received {update.message.chat.first_name}')
-                add_schedule_to_csv(text, update, context)
+                # add_schedule_to_csv(text_for_csv, update, context)
 
 
 def check_registration(update, context):
@@ -242,18 +255,24 @@ def add_schedule_to_csv(text, update, context):
     with open(file_path, mode="r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
+            print(row)
             if row and int(row[0]) == update.effective_chat.id:
                 if len(row) == 5:
+                    print('len=5')
                     new_row = row.append(text)
                 if len(row) == 6:
-                    if row[-1] == text:
-                        break
+                    print('len=5')
+                    if row[5] == text:
                     #  отправить уведомление
                     # print('отправить уведомление')
                     # notification(update, context)
                     # my_schedule(update, context)
-                    new_row = row[:-1] + [text]
-                rows.append(new_row)
+                        rows.append(row)
+                        print('текст тот же')
+                    else:
+                        print('текст другой')
+                        new_row = row[:5] + [text]
+                        rows.append(new_row)
             else:
                 rows.append(row)
     with open(file_path, mode="w", encoding="utf-8", newline="") as file:

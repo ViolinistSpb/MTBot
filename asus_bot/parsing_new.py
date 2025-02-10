@@ -1,13 +1,9 @@
 from dotenv import load_dotenv
 import os
-from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests
 import telegram
-
-
-from validators import clean_day
 
 
 load_dotenv()
@@ -32,8 +28,7 @@ bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 
 def recieve_schedule(username, password, days):
-    session = requests.session()
-    response = get_response(username, password, session)
+    response = get_response(username, password)
     soup = BeautifulSoup(response.text, 'lxml')
     table = soup.find('table', attrs={'class': 'table table-hover'})
     all_tr = table.find_all('tr')
@@ -50,14 +45,15 @@ def recieve_schedule(username, password, days):
     list_message = message.split('%')
     final_message = ''
     for day in list_message[:1+int(days)]:
-        final_message += clean_day(day)
+        final_message += day
     if final_message is not None:
         print('Данные отправлены')
     return final_message
 
 
-def get_response(username, password, session):
+def get_response(username, password):
     print('get_response func')
+    session = requests.session()
     response = session.get(LOGIN_URL)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'lxml')
