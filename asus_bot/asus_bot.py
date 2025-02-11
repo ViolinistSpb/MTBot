@@ -48,7 +48,7 @@ def main():
 
 if __name__ == "__main__":
     count = 0
-    while count <= 10:
+    while True:
         try:
             main()
             break  # Если main() успешно отработала, выходим из цикла

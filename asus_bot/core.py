@@ -6,6 +6,7 @@ import requests
 from validators import validate_email, validate_password
 from logger_config import logger
 
+from db import add_or_update_user
 from parsing_new import recieve_schedule, get_response
 from validators import clean_day, pre_clean_day
 
@@ -98,11 +99,13 @@ ivanov@mariinsky.ru abcd1234
         and check_registration(update, context)
     ):
         print('all valid')
-        email = message.split()[0]
+        login = message.split()[0]
         password = message.split()[1]
         id = update.message.chat.id
         name = update.message.chat.first_name
-        new_row = [str(id), name, email, password, str(DAYS_TRACKING)]
+        add_or_update_user(tg_id=id, name=name, login=login,
+                           password=password, days=DAYS_TRACKING)
+        new_row = [str(id), name, login, password, str(DAYS_TRACKING)]
         update_csv(id, new_row, context, update)
         return
     else:
