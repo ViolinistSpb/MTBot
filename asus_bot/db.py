@@ -1,8 +1,6 @@
-import asyncio
-from sqlalchemy import (Column, insert, Integer,
+from sqlalchemy import (create_engine, Column, insert, Integer,
                         select, String, Text, update)
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import Session, declarative_base
 
 Base = declarative_base()
 
@@ -12,6 +10,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     tg_id = Column(Integer, unique=True, nullable=False)
     days = Column(Integer, default=3)
+    name = Column(String(40))
     login = Column(String(40), unique=True, nullable=False)
     password = Column(String(40), nullable=False)
     text = Column(Text)
@@ -23,18 +22,12 @@ class User(Base):
                 f'Пароль:{self.password}\n'
                 f'Дней отслеживания:{self.days}')
 
-# engine = create_engine('sqlite:///./sqlite.db', echo=False)
+
+engine = create_engine('sqlite:///sqlite.db', echo=False)
 # Base.metadata.drop_all(engine)  # Удаление таблицы
+Base.metadata.create_all(engine)
+session = Session(engine)
 
-
-engine = create_async_engine('sqlite+aiosqlite:///./sqlite.db', echo=False)
-AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
-async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-# Запуск асинхронного создания таблиц
-asyncio.run(init_db())
 # user1 = User(
 #     tg_id=1054725325,
 #     days=3,
@@ -72,6 +65,7 @@ user5 = User(
 )
 
 # session.add(user2)
+# session.commit()
 # session.add(user3)
 # session.add(user4)
 # session.add(user5)
@@ -79,17 +73,59 @@ user5 = User(
 # session.commit()
 
 
-async def get_user_by_tg_id(tg_id: int):
-    async with AsyncSessionLocal() as session:
-        stmt = select(User).where(User.tg_id == tg_id)
-        result = await session.execute(stmt)
-        user = result.scalars().first()
-        return user if user else None
+def check_user_exists(tg_id):
+    print('check_user_exists')
+    call = session.execute(
+        select(User).where(User.tg_id == tg_id)
+    )
+    user = call.scalars().first()
+    return True if user else False
 
 
-# async def main():
-#     user_data = await get_user_by_tg_id(5583668411)
-#     print(user_data.login)
+def add_or_update_user(tg_id, name, login, password, days):
+    print('add_or_update_user')
+    if check_user_exists(tg_id):
+        print('exists, trying to change user')
+        session.execute(
+            update(User).where(User.tg_id == tg_id).values(
+                tg_id=tg_id,
+                name=name,
+                login=login,
+                password=password,
+                days=days
+            )
+        )
+        session.commit()
+    if check_user_exists(tg_id) is False:
+        print('not exists')
+        session.execute(
+            insert(User).values(
+                tg_id=tg_id,
+                name=name,
+                login=login,
+                password=password,
+                days=days
+            )
+        )
+        session.commit()
+    print('sucsess insertion')
 
-user = asyncio.run(get_user_by_tg_id(5583668411))
-print(user.id)
+
+def update_user(tg_id, name, login, password, days):
+    print('update user')
+    if check_user_exists(tg_id):
+        print('exists, trying to change user')
+        session.execute(
+            update(User).where(User.tg_id == tg_id).values(
+                name=name,
+                login=login,
+                password=password,
+                days=days
+            )
+        )
+        session.commit()
+        print('sucsess updation')
+        return 
+
+
+print(check_user_exists(542521964))
