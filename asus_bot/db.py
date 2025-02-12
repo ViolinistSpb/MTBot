@@ -106,22 +106,3 @@ def add_or_update_user(tg_id, name, login, password, days):
         session.commit()
     print('sucsess insertion')
 
-
-def update_user(tg_id, name, login, password, days):
-    print('update user')
-    if check_user_exists(tg_id):
-        print('exists, trying to change user')
-        session.execute(
-            update(User).where(User.tg_id == tg_id).values(
-                name=name,
-                login=login,
-                password=password,
-                days=days
-            )
-        )
-        session.commit()
-        print('sucsess updation')
-        return 
-
-
-# print(check_user_exists(542521964))
