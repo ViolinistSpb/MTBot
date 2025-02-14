@@ -118,4 +118,5 @@ def get_schedule_from_db(tg_id):
     user = get_user(tg_id)
     if user:
         schedule_from_db = user.text
+        print('sucsess get text from db')
         return schedule_from_db

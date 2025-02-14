@@ -6,7 +6,7 @@ import requests
 from validators import validate_email, validate_password
 from logger_config import logger
 
-from db import add_user, update_day
+from db import add_user, get_user, update_day
 from parsing_new import recieve_schedule, get_response
 from validators import clean_day, pre_clean_day
 from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE,
@@ -157,17 +157,15 @@ def update_day_csv(target_id, new_day, context, update):
 
 def my_info(update, context):
     logger.info(f'my_info {update.message.chat.first_name}')
-    with open('data.csv', mode="r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row and int(row[0]) == update.effective_chat.id:
-                context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=(f'Ваш Телеграм ID: {row[0]}\n'
-                          f'Имя в Телеграм: {row[1]}\n'
-                          f'Почта:{row[2]}\n'
-                          f'Пароль:{row[3]}\n'
-                          f'Количество дней отслеживания:{row[4]}'))
+    chat_id = update.effective_chat.id
+    user = get_user(chat_id)
+    if user:
+        text = (f'Ваш Телеграм ID: {user.tg_id}\n'
+                f'Ваше Имя в Телеграм: {user.name}\n'
+                f'Почта: {user.login}\n'
+                f'Пароль: {user.password}\n'
+                f'Количество дней отслеживания: {user.days}')
+        context.bot.send_message(chat_id, text=text)
 
 
 def my_schedule(update, context):
