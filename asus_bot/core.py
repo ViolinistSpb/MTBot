@@ -1,28 +1,25 @@
-import csv
-
-from telegram import ReplyKeyboardMarkup
 import requests
+from telegram import ReplyKeyboardMarkup
 
-from validators import validate_email, validate_password
+from .asus_bot import bot
+from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE, REGISTRATION_TEXT)
+from db import (add_user, get_user, update_day,
+                add_schedule_to_db, get_schedule_from_db)
 from logger_config import logger
-
-from db import add_user, get_user, update_day
 from parsing_new import recieve_schedule, get_response
-from validators import clean_day, pre_clean_day
-from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE,
-                       FILE_PATH, REGISTRATION_TEXT)
+from validators import add_markdown, validate_password
 
 
 def start(update, context):
     logger.info(f'start {update.message.chat.first_name}')
-    chat = update.effective_chat
+    chat_id = update.effective_chat.id
     user = update.message.chat.first_name
     context.bot.send_message(
-        chat_id=chat.id,
-        text=f'<b>{user}</b>, привет!\nСпасибо что присоединился к асус-боту! 🤖\n\n',
+        chat_id=chat_id,
+        text=f'<b>{user}</b>, привет!\nСпасибо что присоединился к асус-боту!'
+             f'🤖\n\n',
         reply_markup=BUTTONS,
-        parse_mode="HTML"
-    )
+        parse_mode="HTML")
 
 
 def help_handle(update, context):
@@ -35,30 +32,14 @@ def help_handle(update, context):
 
 def days(update, context):
     logger.info(f'days {update.message.chat.first_name}')
-    chat = update.effective_chat
+    chat_id = update.effective_chat.id
     buttons = ReplyKeyboardMarkup(
         [['/start', '/2', '/3'],
-         ['/4', '/5', '/6', '/7']], resize_keyboard=True
-    )
+         ['/4', '/5', '/6', '/7']], resize_keyboard=True)
     context.bot.send_message(
-        chat_id=chat.id,
+        chat_id=chat_id,
         text='Выберите количество дней для отслеживания',
-        reply_markup=buttons
-    )
-
-
-def get_new_image():
-    URL = 'https://api.thecatapi.com/v1/images/search'
-    response = requests.get(URL).json()
-    random_cat = response[0].get('url')
-    return random_cat
-
-
-def new_cat(update, context):
-    logger.info(f'new_cat {update.message.chat.first_name}')
-    print(update.message.text)
-    chat = update.effective_chat
-    context.bot.send_photo(chat.id, get_new_image())
+        reply_markup=buttons)
 
 
 def registration(update, context):
@@ -68,7 +49,7 @@ def registration(update, context):
     chat = update.effective_chat
     if message == 'Войти в систему asus':
         context.bot.send_message(chat_id=chat.id, text=REGISTRATION_TEXT)
-    elif (
+    if (
         len(message.split()) == 2
         and validate_password(message.split()[1])
         and check_registration(update, context)
@@ -76,86 +57,15 @@ def registration(update, context):
         print('all valid')
         login = message.split()[0]
         password = message.split()[1]
-        id = update.message.chat.id
+        tg_id = update.message.chat.id
         name = update.message.chat.first_name
-        add_user(tg_id=id, name=name, login=login,
+        add_user(tg_id=tg_id, name=name, login=login,
                  password=password, days=DAYS_TRACKING)
         logger.info(f'sucsess registration {update.message.chat.first_name}')
 
 
-def update_csv(target_id, new_row, context, update):
-    """Обновляет или добавляет строку в CSV-файле по первому элементу."""
-
-    rows = []
-    found = False
-    with open(FILE_PATH, mode="r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row == new_row:
-                context.bot.send_message(
-                    chat_id=target_id,
-                    text='Вы уже регистрировали идентичные данные')
-                logger.info(
-                    f'double registration {update.message.chat.first_name}')
-                rows.append(row)
-                found = True
-            elif row and int(row[0]) == target_id:  # Ищем нужную строку
-                rows.append(new_row)  # Обновляем строку
-                context.bot.send_message(
-                    chat_id=target_id,
-                    text='Спасибо, данные перезаписаны'
-                    )
-                logger.info(
-                    f'update registration {update.message.chat.first_name}')
-                found = True
-            else:
-                rows.append(row)  # Оставляем без изменений
-    if not found:
-        rows.append(new_row)
-        context.bot.send_message(
-            chat_id=target_id,
-            text=('Спасибо, данные верны и будут храниться '
-                  'в зашифрованном виде! '
-                  'Дальнейшая логика в разработке')
-            )
-        logger.info(f'new data has written {update.message.chat.first_name}')
-
-    # Перезаписываем файл с обновлёнными данными
-    with open(FILE_PATH, mode="w", encoding="utf-8", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-        logger.info(f'file has rewritten {update.message.chat.first_name}')
-
-
-def update_day_csv(target_id, new_day, context, update):
-    print('updateday')
-    logger.info(f'update_day_csv {update.message.chat.first_name}')
-    """Обновляет дни в CSV-файле в поиске по первому элементу."""
-    rows = []
-    with open(FILE_PATH, mode="r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row and isinstance(int(row[0]), int) and int(row[0]) == target_id:
-                print('found me')
-                if len(row) == 6:
-                    print('len=6')
-                    new_row = row[:4] + [new_day] + [row[-1]]
-                    print(new_row)
-                if len(row) == 5 or len(row) == 4:
-                    print(f'len={len(row)}')
-                    new_row = row[:4] + [new_day]
-                    print(new_row)
-                rows.append(new_row)
-            else:
-                print('else')
-                rows.append(row)
-    with open(FILE_PATH, mode="w", encoding="utf-8", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-        logger.info(f'Days has changed {update.message.chat.first_name}')
-
-
 def my_info(update, context):
+    print('my_info func')
     logger.info(f'my_info {update.message.chat.first_name}')
     chat_id = update.effective_chat.id
     user = get_user(chat_id)
@@ -169,26 +79,20 @@ def my_info(update, context):
 
 
 def my_schedule(update, context):
+    print('my_schedule func')
     logger.info(f'my_schedule {update.message.chat.first_name}')
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='несколько секунд...')
-    with open('data.csv', mode="r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row and isinstance(int(row[0]), int) and int(row[0]) == update.effective_chat.id:
-                email = row[2]
-                password = row[3]
-                days = row[4]
-                raw_text = recieve_schedule(email, password, days)
-                text_for_csv = pre_clean_day(raw_text)
-                clear_text = clean_day(text_for_csv)
-                context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=clear_text,
-                    parse_mode="HTML")
-                logger.info(f'data received {update.message.chat.first_name}')
-                # add_schedule_to_csv(text_for_csv, update, context)
+    chat_id = update.effective_chat.id
+    schedule_from_db = get_schedule_from_db(chat_id)
+    if schedule_from_db is None:
+        context.bot.send_message(chat_id, text='несколько секунд...')
+        user = get_user(chat_id)
+        text = recieve_schedule(user.login, user.password, user.days)
+        logger.info(f'get data from site {update.message.chat.first_name}')
+    if schedule_from_db is not None:
+        text = schedule_from_db
+        logger.info(f'get data from db {update.message.chat.first_name}')
+    text = add_markdown(text)
+    context.bot.send_message(chat_id, text=text, parse_mode="HTML")
 
 
 def check_registration(update, context):
@@ -216,46 +120,21 @@ def check_registration(update, context):
     return False
 
 
-def add_schedule_to_csv(text, update, context):
-    logger.info(f'add_schedule_to_csv {update.message.chat.first_name}')
-    print("add_schedule_to_csv")
-    """Добавляет текст в CSV-файл в поиске по первому элементу."""
-    rows = []
-    with open(FILE_PATH, mode="r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            print(row)
-            if row and int(row[0]) == update.effective_chat.id:
-                if len(row) == 5:
-                    print('len=5')
-                    new_row = row.append(text)
-                if len(row) == 6:
-                    print('len=5')
-                    if row[5] == text:
-                    #  отправить уведомление
-                    # print('отправить уведомление')
-                    # notification(update, context)
-                    # my_schedule(update, context)
-                        rows.append(row)
-                        print('текст тот же')
-                    else:
-                        print('текст другой')
-                        new_row = row[:5] + [text]
-                        rows.append(new_row)
-            else:
-                rows.append(row)
-    with open(FILE_PATH, mode="w", encoding="utf-8", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-        logger.info(f'Schedule has changed {update.message.chat.first_name}')
+def add_update_schedule(text, user):
+    logger.info(f'add_schedule_to_db {user.name}')
+    print("add_schedule_to_db")
+    chat_id = user.tg_id
+    if user.text == text:
+        print('то же расписание')
+    notification(user)
+    add_schedule_to_db(chat_id, text)
 
 
-def notification(update, context):
+def notification(user):
     print('notification')
-    logger.info(f'notification {update.message.chat.first_name}')
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='В расписании произошли изменения!')
+    logger.info(f'notification {user.name}')
+    text = 'В расписании произошли изменения!'
+    bot.send_message(user.tg_id, text)
 
 
 def bot_send_day_message(context, update, new_days):
@@ -306,3 +185,16 @@ def seven(update, context):
     new_days = 7
     update_day(update.effective_chat.id, new_days)
     bot_send_day_message(context, update, new_days)
+
+
+def get_new_image():
+    URL = 'https://api.thecatapi.com/v1/images/search'
+    response = requests.get(URL).json()
+    random_cat = response[0].get('url')
+    return random_cat
+
+
+def new_cat(update, context):
+    logger.info(f'new_cat {update.message.chat.first_name}')
+    chat_id = update.effective_chat.id
+    context.bot.send_photo(chat_id, get_new_image())

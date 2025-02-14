@@ -11,23 +11,22 @@ def validate_password(password):
     return bool(re.match(pattern, password))
 
 
-def pre_clean_day(day):
+def clean_text(text):
     words_to_remove = ["Первые скрипки", "Вторые скрипки", "Альты", "Оркестр",
                        "Репетиция", "Спектакль"]
     for word in words_to_remove:
-        day = day.replace(word, "")
-    return day
+        text = text.replace(word, "")
+    text = text.replace(r"\([^()]*\)", "")
+    text = re.sub(r"(?<=[^\s])([А-Я])", r" \1", text)
+    text = re.sub(r"(Оркестр)(?!\n)", r"\1\n", text)
+    return text
 
 
-def clean_day(day):
-    day = re.sub(r"(?<=[^\s])([А-Я])", r" \1", day)
-    day = re.sub(r"(Оркестр)(?!\n)", r"\1\n", day)
+def add_markdown(text):
     pattern = r"([А-Я][а-я]) (\d{2}\.\d{2}\.\d{4})"
-    day = re.sub(pattern, r"<b>\1 \2</b>", day)
+    text = re.sub(pattern, r"<b>\1 \2</b>", text)
     pattern = r"(\d{2}:\d{2})( - )(\d{2}:\d{2})"
-    day = re.sub(pattern, r"<i>\1 \2 \3</i>", day)
+    text = re.sub(pattern, r"<i>\1 \2 \3</i>", text)
     pattern = r"([MМ][123])"
-    day = re.sub(pattern, r"<b><i>\1</i></b>", day)
-    pattern = r"\([^()]*\)"
-    day = day.replace(pattern, "")
-    return day
+    text = re.sub(pattern, r"<b><i>\1</i></b>", text)
+    return text

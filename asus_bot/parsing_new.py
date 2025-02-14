@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 import requests
 import telegram
 
+from validators import clean_text
+
 
 load_dotenv()
 
@@ -48,7 +50,9 @@ def recieve_schedule(username, password, days):
         final_message += day
     if final_message is not None:
         print('Данные отправлены')
-    return final_message
+    else:
+        print('Данных нет')
+    return clean_text(final_message)
 
 
 def get_response(username, password):

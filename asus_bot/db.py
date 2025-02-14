@@ -94,7 +94,7 @@ def add_user(tg_id, name, login, password, days):
                 password=password,
                 days=days))
         session.commit()
-    print('sucsess insertion')
+        print('sucsess insertion')
 
 
 def update_day(tg_id, days):
@@ -107,6 +107,7 @@ def update_day(tg_id, days):
 
 
 def add_schedule_to_db(tg_id, text):
+    print('add_schedule_to_db')
     user = get_user(tg_id)
     if user:
         user.text = text
@@ -115,8 +116,16 @@ def add_schedule_to_db(tg_id, text):
 
 
 def get_schedule_from_db(tg_id):
+    print('get_schedule_from_db')
     user = get_user(tg_id)
     if user:
         schedule_from_db = user.text
         print('sucsess get text from db')
         return schedule_from_db
+
+
+def get_all_users():
+    print('get_all_users')
+    call = session.execute(select(User))
+    users = call.all()
+    return users
