@@ -73,17 +73,18 @@ user5 = User(
 # session.commit()
 
 
-def check_user_exists(tg_id):
-    print('check_user_exists')
+def get_user(tg_id):
+    print('get_user')
     call = session.execute(
         select(User).where(User.tg_id == tg_id)
     )
-    return call.scalars().first()
+    user = call.scalars().first()
+    return user
 
 
 def add_user(tg_id, name, login, password, days):
     print('add_user')
-    if not check_user_exists(tg_id):
+    if not get_user(tg_id):
         print('not exists')
         session.execute(
             insert(User).values(
@@ -94,3 +95,27 @@ def add_user(tg_id, name, login, password, days):
                 days=days))
         session.commit()
     print('sucsess insertion')
+
+
+def update_day(tg_id, days):
+    print('update_day')
+    user = get_user(tg_id)
+    if user:
+        user.days = days
+        session.commit()
+        print('sucsess days changes')
+
+
+def add_schedule_to_db(tg_id, text):
+    user = get_user(tg_id)
+    if user:
+        user.text = text
+        session.commit()
+        print('sucsess text adding to db')
+
+
+def get_schedule_from_db(tg_id):
+    user = get_user(tg_id)
+    if user:
+        schedule_from_db = user.text
+        return schedule_from_db

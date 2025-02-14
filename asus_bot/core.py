@@ -6,7 +6,7 @@ import requests
 from validators import validate_email, validate_password
 from logger_config import logger
 
-from db import add_user
+from db import add_user, update_day
 from parsing_new import recieve_schedule, get_response
 from validators import clean_day, pre_clean_day
 from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE,
@@ -80,10 +80,7 @@ def registration(update, context):
         name = update.message.chat.first_name
         add_user(tg_id=id, name=name, login=login,
                  password=password, days=DAYS_TRACKING)
-    else:
-        logger.info(f'TypeError {update.message.chat.first_name}')
-        context.bot.send_message(
-            chat_id=chat.id, text='Неверный формат данных')
+        logger.info(f'sucsess registration {update.message.chat.first_name}')
 
 
 def update_csv(target_id, new_row, context, update):
@@ -263,71 +260,51 @@ def notification(update, context):
         text='В расписании произошли изменения!')
 
 
-def updating(FILE_PATH):
-    pass
+def bot_send_day_message(context, update, new_days):
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=f'Вы выбрали {new_days} дней для отслеживания',
+        reply_markup=BUTTONS
+    )
 
 
 def two(update, context):
     logger.info(f'two {update.message.chat.first_name}')
     new_days = 2
-    update_day_csv(update.effective_chat.id, new_days, context, update)
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Вы выбрали 2 дня для отслеживания',
-        reply_markup=BUTTONS
-    )
+    update_day(update.effective_chat.id, new_days)
+    bot_send_day_message(context, update, new_days)
 
 
 def three(update, context):
     logger.info(f'three {update.message.chat.first_name}')
     new_days = 3
-    update_day_csv(update.effective_chat.id, new_days, context, update)
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Вы выбрали 3 дня для отслеживания',
-        reply_markup=BUTTONS
-    )
+    update_day(update.effective_chat.id, new_days)
+    bot_send_day_message(context, update, new_days)
 
 
 def four(update, context):
     logger.info(f'four {update.message.chat.first_name}')
     new_days = 4
-    update_day_csv(update.effective_chat.id, new_days, context, update)
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Вы выбрали 4 дня для отслеживания',
-        reply_markup=BUTTONS
-    )
+    update_day(update.effective_chat.id, new_days)
+    bot_send_day_message(context, update, new_days)
 
 
 def five(update, context):
     logger.info(f'five {update.message.chat.first_name}')
     new_days = 5
-    update_day_csv(update.effective_chat.id, new_days, context, update)
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Вы выбрали 5 дней для отслеживания',
-        reply_markup=BUTTONS
-    )
+    update_day(update.effective_chat.id, new_days)
+    bot_send_day_message(context, update, new_days)
 
 
 def six(update, context):
     logger.info(f'six {update.message.chat.first_name}')
     new_days = 6
-    update_day_csv(update.effective_chat.id, new_days, context, update)
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Вы выбрали 6 дней для отслеживания',
-        reply_markup=BUTTONS
-    )
+    update_day(update.effective_chat.id, new_days)
+    bot_send_day_message(context, update, new_days)
 
 
 def seven(update, context):
     logger.info(f'seven {update.message.chat.first_name}')
     new_days = 7
-    update_day_csv(update.effective_chat.id, new_days, context, update)
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text='Вы выбрали 7 дней для отслеживания',
-        reply_markup=BUTTONS
-    )
+    update_day(update.effective_chat.id, new_days)
+    bot_send_day_message(context, update, new_days)
