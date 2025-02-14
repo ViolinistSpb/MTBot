@@ -6,29 +6,11 @@ import requests
 from validators import validate_email, validate_password
 from logger_config import logger
 
-from db import add_or_update_user
+from db import add_user
 from parsing_new import recieve_schedule, get_response
 from validators import clean_day, pre_clean_day
-
-
-HELP_MESSAGE = """Команды:
-⚪ /start – Вернуться к началу
-⚪ /Войти в систему asus – Ввести данные для авторизации
-⚪ /my_info – Получить свои данные
-⚪ /my_schedule – Получить свое расписание
-⚪ /days_tracking – Выбрать количество дней для отслеживания
-⚪ /newcat – Получить котика 🐈‍⬛️
-⚪ /help – Показать доступные команды
-"""
-
-
-file_path = "data.csv"
-DAYS_TRACKING = 3
-BUTTONS = ReplyKeyboardMarkup(
-    [['/start', 'Войти в систему asus'],
-     ['/my_info', '/my_schedule'],
-     ['/days', '/newcat', '/help']],
-    resize_keyboard=True)
+from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE,
+                       FILE_PATH, REGISTRATION_TEXT)
 
 
 def start(update, context):
@@ -84,18 +66,11 @@ def registration(update, context):
     logger.info(f'registration {update.message.chat.first_name}')
     message = update.message.text
     chat = update.effective_chat
-    text_registration = """
-Введите адрес вашей корпоративной почты (или логин) и через пробел пароль
-например:
-ivanov abcd1234
-ivanov@mariinsky.ru abcd1234
-* Ваши данные будут храниться в зашифрованном виде"""
     if message == 'Войти в систему asus':
-        context.bot.send_message(chat_id=chat.id, text=text_registration)
+        context.bot.send_message(chat_id=chat.id, text=REGISTRATION_TEXT)
     elif (
         len(message.split()) == 2
         and validate_password(message.split()[1])
-        # and validate_email(message.split()[0])
         and check_registration(update, context)
     ):
         print('all valid')
@@ -103,11 +78,8 @@ ivanov@mariinsky.ru abcd1234
         password = message.split()[1]
         id = update.message.chat.id
         name = update.message.chat.first_name
-        add_or_update_user(tg_id=id, name=name, login=login,
-                           password=password, days=DAYS_TRACKING)
-        new_row = [str(id), name, login, password, str(DAYS_TRACKING)]
-        update_csv(id, new_row, context, update)
-        return
+        add_user(tg_id=id, name=name, login=login,
+                 password=password, days=DAYS_TRACKING)
     else:
         logger.info(f'TypeError {update.message.chat.first_name}')
         context.bot.send_message(
@@ -119,14 +91,13 @@ def update_csv(target_id, new_row, context, update):
 
     rows = []
     found = False
-    with open(file_path, mode="r", encoding="utf-8") as file:
+    with open(FILE_PATH, mode="r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
             if row == new_row:
                 context.bot.send_message(
                     chat_id=target_id,
-                    text='Вы уже регистрировали идентичные данные'
-                )
+                    text='Вы уже регистрировали идентичные данные')
                 logger.info(
                     f'double registration {update.message.chat.first_name}')
                 rows.append(row)
@@ -153,7 +124,7 @@ def update_csv(target_id, new_row, context, update):
         logger.info(f'new data has written {update.message.chat.first_name}')
 
     # Перезаписываем файл с обновлёнными данными
-    with open(file_path, mode="w", encoding="utf-8", newline="") as file:
+    with open(FILE_PATH, mode="w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
         logger.info(f'file has rewritten {update.message.chat.first_name}')
@@ -164,7 +135,7 @@ def update_day_csv(target_id, new_day, context, update):
     logger.info(f'update_day_csv {update.message.chat.first_name}')
     """Обновляет дни в CSV-файле в поиске по первому элементу."""
     rows = []
-    with open(file_path, mode="r", encoding="utf-8") as file:
+    with open(FILE_PATH, mode="r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
             if row and isinstance(int(row[0]), int) and int(row[0]) == target_id:
@@ -181,7 +152,7 @@ def update_day_csv(target_id, new_day, context, update):
             else:
                 print('else')
                 rows.append(row)
-    with open(file_path, mode="w", encoding="utf-8", newline="") as file:
+    with open(FILE_PATH, mode="w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
         logger.info(f'Days has changed {update.message.chat.first_name}')
@@ -255,7 +226,7 @@ def add_schedule_to_csv(text, update, context):
     print("add_schedule_to_csv")
     """Добавляет текст в CSV-файл в поиске по первому элементу."""
     rows = []
-    with open(file_path, mode="r", encoding="utf-8") as file:
+    with open(FILE_PATH, mode="r", encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
             print(row)
@@ -278,7 +249,7 @@ def add_schedule_to_csv(text, update, context):
                         rows.append(new_row)
             else:
                 rows.append(row)
-    with open(file_path, mode="w", encoding="utf-8", newline="") as file:
+    with open(FILE_PATH, mode="w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
         writer.writerows(rows)
         logger.info(f'Schedule has changed {update.message.chat.first_name}')
@@ -292,7 +263,7 @@ def notification(update, context):
         text='В расписании произошли изменения!')
 
 
-def updating(file_path):
+def updating(FILE_PATH):
     pass
 
 

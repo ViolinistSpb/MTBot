@@ -78,23 +78,12 @@ def check_user_exists(tg_id):
     call = session.execute(
         select(User).where(User.tg_id == tg_id)
     )
-    user = call.scalars().first()
-    return True if user else False
+    return call.scalars().first()
 
 
-def add_or_update_user(tg_id, name, login, password, days):
-    print('add_or_update_user')
-    if check_user_exists(tg_id):
-        print('exists, trying to change user')
-        session.execute(
-            update(User).where(User.tg_id == tg_id).values(
-                tg_id=tg_id,
-                name=name,
-                login=login,
-                password=password,
-                days=days))
-        session.commit()
-    else:
+def add_user(tg_id, name, login, password, days):
+    print('add_user')
+    if not check_user_exists(tg_id):
         print('not exists')
         session.execute(
             insert(User).values(
@@ -105,4 +94,3 @@ def add_or_update_user(tg_id, name, login, password, days):
                 days=days))
         session.commit()
     print('sucsess insertion')
-
