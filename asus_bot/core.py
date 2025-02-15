@@ -92,7 +92,6 @@ def my_schedule(update, context):
         text = schedule_from_db
         logger.info(f'get data from db {update.message.chat.first_name}')
     text = add_markdown(text)
-    print('отправляю текст с маркдаун')
     context.bot.send_message(chat_id, text=text, parse_mode="HTML")
 
 
@@ -128,10 +127,9 @@ def add_update_schedule(text, user):
     if user.text == text:
         print('то же расписание')
         return True
-        
+
     elif user.text != text:
         print('новое расписание')
-        # notification(user)
         add_schedule_to_db(chat_id, text)
         return False
 
@@ -197,4 +195,3 @@ def new_cat(update, context):
     logger.info(f'new_cat {update.message.chat.first_name}')
     chat_id = update.effective_chat.id
     context.bot.send_photo(chat_id, get_new_image())
-
