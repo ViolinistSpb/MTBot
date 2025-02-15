@@ -49,7 +49,7 @@ def recieve_schedule(username, password, days):
     for day in list_message[:1+int(days)]:
         final_message += day
     if final_message is not None:
-        print('Данные отправлены')
+        print('Данные считались с сайта и были отправлены')
     else:
         print('Данных нет')
     return clean_text(final_message)

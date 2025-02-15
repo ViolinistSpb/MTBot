@@ -1,7 +1,6 @@
 import requests
 from telegram import ReplyKeyboardMarkup
 
-from .asus_bot import bot
 from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE, REGISTRATION_TEXT)
 from db import (add_user, get_user, update_day,
                 add_schedule_to_db, get_schedule_from_db)
@@ -46,9 +45,9 @@ def registration(update, context):
     print('registration func')
     logger.info(f'registration {update.message.chat.first_name}')
     message = update.message.text
-    chat = update.effective_chat
+    chat_id = update.effective_chat.id
     if message == 'Войти в систему asus':
-        context.bot.send_message(chat_id=chat.id, text=REGISTRATION_TEXT)
+        context.bot.send_message(chat_id=chat_id, text=REGISTRATION_TEXT)
     if (
         len(message.split()) == 2
         and validate_password(message.split()[1])
@@ -88,10 +87,12 @@ def my_schedule(update, context):
         user = get_user(chat_id)
         text = recieve_schedule(user.login, user.password, user.days)
         logger.info(f'get data from site {update.message.chat.first_name}')
+        add_update_schedule(text, user)
     if schedule_from_db is not None:
         text = schedule_from_db
         logger.info(f'get data from db {update.message.chat.first_name}')
     text = add_markdown(text)
+    print('отправляю текст с маркдаун')
     context.bot.send_message(chat_id, text=text, parse_mode="HTML")
 
 
@@ -122,19 +123,17 @@ def check_registration(update, context):
 
 def add_update_schedule(text, user):
     logger.info(f'add_schedule_to_db {user.name}')
-    print("add_schedule_to_db")
+    print("add_update_schedule")
     chat_id = user.tg_id
     if user.text == text:
         print('то же расписание')
-    notification(user)
-    add_schedule_to_db(chat_id, text)
-
-
-def notification(user):
-    print('notification')
-    logger.info(f'notification {user.name}')
-    text = 'В расписании произошли изменения!'
-    bot.send_message(user.tg_id, text)
+        return True
+        
+    elif user.text != text:
+        print('новое расписание')
+        # notification(user)
+        add_schedule_to_db(chat_id, text)
+        return False
 
 
 def bot_send_day_message(context, update, new_days):
@@ -198,3 +197,4 @@ def new_cat(update, context):
     logger.info(f'new_cat {update.message.chat.first_name}')
     chat_id = update.effective_chat.id
     context.bot.send_photo(chat_id, get_new_image())
+

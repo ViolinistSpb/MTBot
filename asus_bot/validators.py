@@ -26,7 +26,7 @@ def add_markdown(text):
     pattern = r"([А-Я][а-я]) (\d{2}\.\d{2}\.\d{4})"
     text = re.sub(pattern, r"<b>\1 \2</b>", text)
     pattern = r"(\d{2}:\d{2})( - )(\d{2}:\d{2})"
-    text = re.sub(pattern, r"<i>\1 \2 \3</i>", text)
+    text = re.sub(pattern, r"<i>\1\2\3</i>", text)
     pattern = r"([MМ][123])"
     text = re.sub(pattern, r"<b><i>\1</i></b>", text)
     return text

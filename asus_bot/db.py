@@ -1,5 +1,5 @@
 from sqlalchemy import (create_engine, Column, insert, Integer,
-                        select, String, Text, update)
+                        select, String, Text)
 from sqlalchemy.orm import Session, declarative_base
 
 Base = declarative_base()
@@ -28,12 +28,12 @@ engine = create_engine('sqlite:///sqlite.db', echo=False)
 Base.metadata.create_all(engine)
 session = Session(engine)
 
-# user1 = User(
-#     tg_id=1054725325,
-#     days=3,
-#     login='malkov@mariinsky.ru',
-#     password='0t4=9x2E%1Yw'
-# )
+user1 = User(
+    tg_id=1054725325,
+    days=3,
+    login='malkov@mariinsky.ru',
+    password='0t4=9x2E%1Yw'
+)
 
 user2 = User(
     tg_id=542521964,
@@ -120,12 +120,10 @@ def get_schedule_from_db(tg_id):
     user = get_user(tg_id)
     if user:
         schedule_from_db = user.text
-        print('sucsess get text from db')
+        print('get text or None from db')
         return schedule_from_db
 
 
 def get_all_users():
-    print('get_all_users')
-    call = session.execute(select(User))
-    users = call.all()
+    users = session.scalars(select(User)).all()
     return users
