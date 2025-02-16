@@ -3,19 +3,24 @@ from datetime import datetime
 
 import requests
 
+pep_numbers = [1, 2, 4, 7, 8]
 
-def task(task_id):
-    response = requests.get('https://python.org')
+
+def task(num):
+    response = requests.get(f'https://peps.python.org/pep-000{pep_numbers}/')
     response_html = response.text
-    print(response_html[:15])
-    print(f'Задача {task_id} выполнена.')
+    print(response_html[:50])
+    print(f'Задача {num} выполнена.')
 
 
 def sync_execute():
     tasks = []
-    for i in range(1, 11):
-        tasks.append(threading.Thread(target=task, args=(i,)))
-        task(i)
+    for num in pep_numbers:
+        tasks.append(threading.Thread(target=task, args=(num,)))
+    for t in tasks:
+        t.start()
+    for t in tasks:
+        t.join()
 
 
 if __name__ == '__main__':
