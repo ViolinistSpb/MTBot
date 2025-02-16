@@ -65,10 +65,9 @@ user5 = User(
 )
 
 # session.add(user2)
-# session.commit()
 # session.add(user3)
 # session.add(user4)
-# session.add(user5)
+
 
 # session.commit()
 

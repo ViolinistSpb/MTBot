@@ -56,12 +56,13 @@ def recieve_schedule(username, password, days):
 
 
 def get_response(username, password):
-    print('get_response func')
     session = requests.session()
     response = session.get(LOGIN_URL)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'lxml')
-    token = soup.find('input', attrs={'name': '__RequestVerificationToken'})['value']
+    token = soup.find(
+        'input', attrs={'name': '__RequestVerificationToken'}
+        )['value']
     if token is None:
         raise ValueError('Токен не найден')
     print('Токен найден')

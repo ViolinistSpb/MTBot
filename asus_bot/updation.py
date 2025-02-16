@@ -8,50 +8,61 @@ from db import get_all_users
 from parsing_new import recieve_schedule
 
 from dotenv import load_dotenv
+from logger_config import logger
+from validators import diff_func
 
 load_dotenv()
 
 ASUS_BOT_TOKEN = os.getenv('ASUS_BOT_TOKEN', "")
 bot = Bot(token=ASUS_BOT_TOKEN)
-UPDATE_INTERVAL = 600
-START_UPDATING_TIME = 9
-END_UPDATING_TIME = 23
+UPDATE_INTERVAL = 600    # seconds
+START_UPDATING_TIME = 9  # hours
+END_UPDATING_TIME = 23   # hours
 
 
 def updation():
+    logger.info('updation() starts')
     print('updation func')
     users = get_all_users()
     if users:
         for user in users:
-            print(f'\n**\nработа с пользователем {user.id}')
+            print(f'\n**\nработа с пользователем {user.name}')
             schedule = recieve_schedule(user.login, user.password, user.days)
+            diff = diff_func(user.text, schedule)
             if add_update_schedule(schedule, user) is True:
-                print('Обновление базы не потребовалось')
+                print(f'Обновление базы не потребовалось {user.name}')
+                logger.info('updation() starts')
             else:
                 print('Обновление расписания пользователя в базе')
+                print(f'Обновление базы {user.name}')
                 ALARM_TEXT = f"""
-❗Ваше расписание на {user.days} дн. изменилось:\nПосмотреть: /my_schedule"""
+❗Ваше расписание на {user.days} дн. изменилось:\n{diff}\n
+Посмотреть расписание: /my_schedule"""
                 if new_day_flag is False:
                     bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
                 else:
                     print('Не высылаю смену расписания утром')
-    print('sucsessfull finish updation func\n----------------- \n')
+    print('sucsessfull finish updation func\n------------------------------\n')
 
 
 if __name__ == "__main__":
     count = 1
+    new_day_flag = False
     while True:
         try:
             now_hour = time.localtime().tm_hour
-            if START_UPDATING_TIME < now_hour < END_UPDATING_TIME:
-                print(time.asctime())
+            print(now_hour)
+            print(time.asctime())
+            if START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME:
                 updation()
                 new_day_flag = False
+                time.sleep(UPDATE_INTERVAL)
+                continue
             else:
                 print('сон')
                 new_day_flag = True
-            time.sleep(UPDATE_INTERVAL)
-            continue
+                time.sleep(UPDATE_INTERVAL)
+                continue
         except Exception as e:
             print(f"Ошибка: {e}. Повторный запуск {count}/10 через 5 секунд")
             count += 1

@@ -15,8 +15,10 @@ def start(update, context):
     user = update.message.chat.first_name
     context.bot.send_message(
         chat_id=chat_id,
-        text=f'<b>{user}</b>, привет!\nСпасибо что присоединился к асус-боту!'
-             f'🤖\n\n',
+        text=f"""<b>{user}</b>, привет!\n\nДобро пожаловать в асус-бот🤖!\n
+Я умею отслеживать 7 дней твоего расписания и оперативно уведомлять о его изменении!\n
+Помощь: /help
+\n\n""",
         reply_markup=BUTTONS,
         parse_mode="HTML")
 
@@ -47,7 +49,8 @@ def registration(update, context):
     message = update.message.text
     chat_id = update.effective_chat.id
     if message == 'Войти в систему asus':
-        context.bot.send_message(chat_id=chat_id, text=REGISTRATION_TEXT)
+        context.bot.send_message(
+            chat_id=chat_id, text=REGISTRATION_TEXT, parse_mode="HTML")
     if (
         len(message.split()) == 2
         and validate_password(message.split()[1])
@@ -58,9 +61,14 @@ def registration(update, context):
         password = message.split()[1]
         tg_id = update.message.chat.id
         name = update.message.chat.first_name
-        add_user(tg_id=tg_id, name=name, login=login,
-                 password=password, days=DAYS_TRACKING)
-        logger.info(f'sucsess registration {update.message.chat.first_name}')
+        if get_user(chat_id) is None:  #  changes here
+            add_user(tg_id=tg_id, name=name, login=login,
+                     password=password, days=DAYS_TRACKING)
+            logger.info(f'sucsess regist. {update.message.chat.first_name}')
+        else:
+            print('Попытка второй верной авторизации с одного тг аккаунта')
+            text = 'У вас уже есть asus-аккаунт, привязанный к ТГ'
+            context.bot.send_message(chat_id=tg_id, text=text)
 
 
 def my_info(update, context):
@@ -122,12 +130,10 @@ def check_registration(update, context):
 
 def add_update_schedule(text, user):
     logger.info(f'add_schedule_to_db {user.name}')
-    print("add_update_schedule")
     chat_id = user.tg_id
     if user.text == text:
         print('то же расписание')
         return True
-
     elif user.text != text:
         print('новое расписание')
         add_schedule_to_db(chat_id, text)
