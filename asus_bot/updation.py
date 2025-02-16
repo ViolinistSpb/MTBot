@@ -23,11 +23,11 @@ END_UPDATING_TIME = 23   # hours
 
 
 def update_user(user):
-    print(f'\n**\nработа с пользователем {user.name}')
+    # print(f'\n**\nработа с пользователем {user.name}')
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
-        print(f'Обновление базы не потребовалось {user.name}')
+        print(f'Обновление базы не потребовалось {user.name}\n')
         logger.info('updation() starts')
     else:
         print('Обновление расписания пользователя в базе')
@@ -39,12 +39,10 @@ def update_user(user):
             bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
         else:
             print('Не высылаю смену расписания утром')
-    print('sucsessfull finish updation func\n------------------------------\n')
 
 
 def updation():
     logger.info('updation() starts')
-    print('updation func')
     tasks = []
     users = get_all_users()
     if users:
@@ -54,6 +52,7 @@ def updation():
         t.start()
     for t in tasks:
         t.join()
+    print('sucsessfull finish updation func\n------------------------------\n')
 
 
 if __name__ == "__main__":
@@ -62,7 +61,6 @@ if __name__ == "__main__":
     while True:
         try:
             now_hour = time.localtime().tm_hour
-            print(now_hour)
             print(time.asctime())
             if START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME:
                 start_time = datetime.now()

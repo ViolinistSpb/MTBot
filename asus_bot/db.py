@@ -2,6 +2,7 @@ from sqlalchemy import (create_engine, Column, insert, Integer,
                         select, String, Text)
 from sqlalchemy.orm import Session, declarative_base
 
+
 Base = declarative_base()
 
 
@@ -11,7 +12,7 @@ class User(Base):
     tg_id = Column(Integer, unique=True, nullable=False)
     days = Column(Integer, default=3)
     name = Column(String(40))
-    login = Column(String(40), unique=True, nullable=False)
+    login = Column(String(40), nullable=False)
     password = Column(String(40), nullable=False)
     text = Column(Text)
 
@@ -30,43 +31,52 @@ session = Session(engine)
 
 user1 = User(
     tg_id=1054725325,
-    days=3,
+    name='Vitalii',
     login='malkov@mariinsky.ru',
     password='0t4=9x2E%1Yw'
 )
 
 user2 = User(
     tg_id=542521964,
-    days=2,
+    name='Лан Чи',
     login='lan',
     password='vitaly_pugachev13.11.1989',
-    text='schedule'
 )
 
 user3 = User(
     tg_id=345736727,
-    days=3,
+    name='Марина',
     login='serebro',
     password='LeR4#K$6f25u'
 )
 
 user4 = User(
     tg_id=266159638,
-    days=3,
+    name='Ekaterina',
     login='gribanova@mariinsky',
     password='?NILqW39=Hut'
 )
 
 user5 = User(
     tg_id=5583668411,
-    days=3,
+    name='К.',
     login='Goncharov_kg@mariinsky.ru',
     password='b1*C&0Zsv6YU'
 )
 
+user6 = User(
+    tg_id=780769393,
+    name='Елизавета',
+    login='sozonova@mariinsky.ru',
+    password='sozonova'
+)
+
+# session.add(user1)
 # session.add(user2)
 # session.add(user3)
 # session.add(user4)
+# session.add(user5)
+# session.add(user6)
 
 
 # session.commit()

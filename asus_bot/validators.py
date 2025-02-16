@@ -24,6 +24,8 @@ def clean_text(text):
 
 
 def add_markdown(text):
+    pattern = r"(?<=[^\s\n])(\d{2}:\d{2} - \d{2}:\d{2})"
+    text = re.sub(pattern, r"\n\1", text)
     pattern = r"([А-Я][а-я]) (\d{2}\.\d{2}\.\d{4})"
     text = re.sub(pattern, r"\n<b>\1 \2</b>", text)  # add \n
     pattern = r"(\d{2}:\d{2})( - )(\d{2}:\d{2})"

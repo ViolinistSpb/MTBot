@@ -16,7 +16,7 @@ def start(update, context):
     context.bot.send_message(
         chat_id=chat_id,
         text=f"""<b>{user}</b>, привет!\n\nДобро пожаловать в асус-бот🤖!\n
-Я умею отслеживать 7 дней твоего расписания и оперативно уведомлять о его изменении!\n
+Я умею отслеживать твоё недельное расписание и оперативно уведомлять об изменениях!\n
 Помощь: /help
 \n\n""",
         reply_markup=BUTTONS,
@@ -132,10 +132,8 @@ def add_update_schedule(text, user):
     logger.info(f'add_schedule_to_db {user.name}')
     chat_id = user.tg_id
     if user.text == text:
-        print('то же расписание')
         return True
     elif user.text != text:
-        print('новое расписание')
         add_schedule_to_db(chat_id, text)
         return False
 
