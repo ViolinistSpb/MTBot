@@ -63,7 +63,7 @@ def registration(update, context):
         name = update.message.chat.first_name
         if get_user(chat_id) is None:  #  changes here
             add_user(tg_id=tg_id, name=name, login=login,
-                     password=password, days=DAYS_TRACKING)
+                     password=password, days=DAYS_TRACKING, text='schedule')
             logger.info(f'sucsess regist. {update.message.chat.first_name}')
         else:
             print('Попытка второй верной авторизации с одного тг аккаунта')

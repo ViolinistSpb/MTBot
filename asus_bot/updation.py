@@ -27,15 +27,15 @@ def update_user(user):
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
-        print(f'Обновление базы не потребовалось {user.name}\n')
+        print(f'Обновление базы не потребовалось {user.name}')
         logger.info('updation() starts')
     else:
-        print('Обновление расписания пользователя в базе')
-        print(f'Обновление базы {user.name}')
+        print(f'Обновление расписания пользователя в базе {user.name}')
         ALARM_TEXT = f"""
 ❗Ваше расписание на {user.days} дн. изменилось:\n{diff}\n
 Посмотреть расписание: /my_schedule"""
         if new_day_flag is False:
+            print('Отправлено сообщение об изменении')
             bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
         else:
             print('Не высылаю смену расписания утром')

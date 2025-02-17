@@ -17,7 +17,10 @@ def clean_text(text):
                        "Репетиция", "Спектакль", "Виолончели", "Контрабасы"]
     for word in words_to_remove:
         text = text.replace(word, "")
-    text = text.replace(r"\([^()]*\)", "")
+    pattern = r"\([^()]*\)"
+    text = re.sub(pattern, "", text)
+    pattern = r"Факт:\d{2}:\d{2} - \d{2}:\d{2}"
+    text = re.sub(pattern, "", text)
     text = re.sub(r"(?<=[^\s])([А-Я])", r" \1", text)
     text = re.sub(r"(Оркестр)(?!\n)", r"\1", text)
     return text
@@ -32,7 +35,7 @@ def add_markdown(text):
     text = re.sub(pattern, r"<i>\1\2\3</i>", text)
     pattern = r"([MМ][123])"
     text = re.sub(pattern, r"<b><i>\1</i></b>", text)
-    text = re.sub(r"Гастроли", r"🚀Гастроли", text)
+    text = re.sub(r"Гастроли", r"✈️Гастроли", text)
     text = re.sub(r"Выходной", r"🎉Выходной", text)
     return text
 

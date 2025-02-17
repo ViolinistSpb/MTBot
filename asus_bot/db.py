@@ -53,7 +53,7 @@ user3 = User(
 user4 = User(
     tg_id=266159638,
     name='Ekaterina',
-    login='gribanova@mariinsky',
+    login='gribanova',
     password='?NILqW39=Hut'
 )
 
