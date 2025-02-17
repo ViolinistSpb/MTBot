@@ -129,7 +129,7 @@ def check_registration(update, context):
 
 
 def add_update_schedule(text, user):
-    logger.info(f'add_schedule_to_db {user.name}')
+    # logger.info(f'add_schedule_to_db {user.name}')
     chat_id = user.tg_id
     if user.text == text:
         return True
