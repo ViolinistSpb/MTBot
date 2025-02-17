@@ -46,9 +46,7 @@ if __name__ == "__main__":
     while True:
         try:
             print(time.asctime())
-            # updater.stop()  #  why it was here?
             main()
-            break  # Если main() успешно отработала, выходим из цикла
         except Exception as e:
             count += 1
             print(f"Ошибка: {e}. Повторный запуск {count}/10 через 5 секунд")

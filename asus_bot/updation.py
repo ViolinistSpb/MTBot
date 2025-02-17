@@ -27,10 +27,10 @@ def update_user(user):
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
-        print(f'Обновление базы не потребовалось {user.name}')
+        print(f'NO updation for {user.name}')
         logger.info('updation() starts')
     else:
-        print(f'Обновление расписания пользователя в базе {user.name}')
+        print(f'UPDATION for {user.name}')
         ALARM_TEXT = f"""
 ❗Ваше расписание на {user.days} дн. изменилось:\n{diff}\n
 Посмотреть расписание: /my_schedule"""
