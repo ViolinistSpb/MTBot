@@ -45,7 +45,7 @@ if __name__ == "__main__":
     count = 1
     while True:
         try:
-            print(time.asctime())
+            print(f'start polling {time.asctime()}')
             # updater.stop()  #  why it was here?
             main()
             break  # Если main() успешно отработала, выходим из цикла

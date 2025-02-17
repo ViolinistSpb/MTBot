@@ -27,10 +27,10 @@ def update_user(user):
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
-        print(f'Обновление базы не потребовалось {user.name}')
+        print(f'NO updation for {user.name}')
         logger.info('updation() starts')
     else:
-        print(f'Обновление расписания пользователя в базе {user.name}')
+        print(f'UPDATION for {user.name}')
         ALARM_TEXT = f"""
 ❗Ваше расписание на {user.days} дн. изменилось:\n{diff}\n
 Посмотреть расписание: /my_schedule"""
@@ -42,7 +42,6 @@ def update_user(user):
 
 
 def updation():
-    logger.info('updation() starts')
     tasks = []
     users = get_all_users()
     if users:
@@ -52,7 +51,6 @@ def updation():
         t.start()
     for t in tasks:
         t.join()
-    print('sucsessfull finish updation func\n------------------------------\n')
 
 
 if __name__ == "__main__":
@@ -61,12 +59,13 @@ if __name__ == "__main__":
     while True:
         try:
             now_hour = time.localtime().tm_hour
-            print(time.asctime())
+            print(f'start updating {time.asctime()}')
             if START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME:
                 start_time = datetime.now()
                 updation()
                 end_time = datetime.now()
                 print(f'Время выполнения: {end_time - start_time} секунд.')
+                print('sucsessfull finish updation func\n------------------------------\n')
                 new_day_flag = False
                 time.sleep(UPDATE_INTERVAL)
                 continue
