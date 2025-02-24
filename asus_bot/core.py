@@ -86,7 +86,6 @@ def my_info(update, context):
 
 
 def my_schedule(update, context):
-    print('my_schedule func')
     logger.info(f'my_schedule {update.message.chat.first_name}')
     chat_id = update.effective_chat.id
     schedule_from_db = get_schedule_from_db(chat_id)
