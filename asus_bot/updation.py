@@ -24,24 +24,29 @@ END_UPDATING_TIME = 23   # hours
 
 def update_user(user):
     # print(f'\n**\nработа с пользователем {user.name}')
+    logger.info(f'work with {user.name}')
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
-        print(f'NO updation for {user.name}')
-        logger.info('updation() starts')
+        logger.info(f'NO UPD for {user.name}')
     else:
-        print(f'UPDATION for {user.name}')
+        logger.info(f'UPDATION for {user.name}')
+#         ALARM_TEXT = """
+# ❗Ваше расписание изменилось:\n
+# Посмотреть расписание: /my_schedule"""
         ALARM_TEXT = f"""
-❗Ваше расписание на {user.days} дн. изменилось:\n{diff}\n
+❗Ваше расписание изменилось:\n{diff}\n
 Посмотреть расписание: /my_schedule"""
-        if new_day_flag is False:
-            print('Отправлено сообщение об изменении')
+        if new_day_flag is False and len(diff) > 20:
+            logger.info(f'SEND NOTIF for {user.name}')
+            logger.debug(f'DIFF: {diff}\nOLD_SCHEDULE: {user.text}\nNEW_SCHEDULE: {schedule}\n for {user.name}')
             bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
         else:
-            print('Не высылаю смену расписания утром')
+            logger.info(f'1st message SKIPPING {user.name}')
 
 
 def updation():
+    logger.info('updation starts')
     tasks = []
     users = get_all_users()
     if users:
@@ -55,7 +60,7 @@ def updation():
 
 if __name__ == "__main__":
     count = 1
-    new_day_flag = False
+    new_day_flag = True
     while True:
         try:
             now_hour = time.localtime().tm_hour
@@ -64,16 +69,15 @@ if __name__ == "__main__":
                 start_time = datetime.now()
                 updation()
                 end_time = datetime.now()
-                print(f'Время выполнения: {end_time - start_time} секунд.')
-                print('sucsessfull finish updation func\n------------------------------\n')
+                logger.info(f'Время выполнения: {end_time - start_time} секунд.')
+                logger.info('sucsessfull finish updation func\n------------------------------\n')
                 new_day_flag = False
-                time.sleep(UPDATE_INTERVAL)
-                continue
+                logger.info('new_day_flag = False')
             else:
-                print('сон')
+                logger.info('сон')
                 new_day_flag = True
-                time.sleep(UPDATE_INTERVAL)
-                continue
+                logger.info('new_day_flag = True')
+            time.sleep(UPDATE_INTERVAL)
         except Exception as e:
             print(f"Ошибка: {e}. Повторный запуск {count}/10 через 5 секунд")
             count += 1

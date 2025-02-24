@@ -78,7 +78,6 @@ def add_schedule_to_db(tg_id, text):
     if user:
         user.text = text
         session.commit()
-        print('sucsess text adding to db')
 
 
 def get_schedule_from_db(tg_id):

@@ -22,7 +22,6 @@ updater = Updater(token=ASUS_BOT_TOKEN)
 
 
 def main():
-    logger.info('main() starts')
     updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('help', help_handle))
@@ -45,8 +44,7 @@ if __name__ == "__main__":
     count = 1
     while True:
         try:
-            print(f'start polling {time.asctime()}')
-            # updater.stop()  #  why it was here?
+            logger.info(f'start polling {time.asctime()}')
             main()
             break  # Если main() успешно отработала, выходим из цикла
         except Exception as e:
