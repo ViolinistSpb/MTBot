@@ -23,7 +23,6 @@ END_UPDATING_TIME = 23   # hours
 
 
 def update_user(user):
-    # print(f'\n**\nработа с пользователем {user.name}')
     logger.info(f'work with {user.name}')
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
@@ -31,15 +30,13 @@ def update_user(user):
         logger.info(f'NO UPD for {user.name}')
     else:
         logger.info(f'UPDATION for {user.name}')
-#         ALARM_TEXT = """
-# ❗Ваше расписание изменилось:\n
-# Посмотреть расписание: /my_schedule"""
         ALARM_TEXT = f"""
 ❗Ваше расписание изменилось:\n{diff}\n
 Посмотреть расписание: /my_schedule"""
         if new_day_flag is False and len(diff) > 20:
+            logger.info(f'LEN DIFF: {len(diff)}')
             logger.info(f'SEND NOTIF for {user.name}')
-            logger.debug(f'DIFF: {diff}\nOLD_SCHEDULE: {user.text}\nNEW_SCHEDULE: {schedule}\n for {user.name}')
+            logger.debug(f'DIFF:\n{diff}\nOLD_SCHEDULE:\n{user.text}\nNEW_SCHEDULE:\n{schedule}\nfor {user.name}')
             bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
         else:
             logger.info(f'1st message SKIPPING {user.name}')
@@ -60,19 +57,22 @@ def updation():
 
 if __name__ == "__main__":
     count = 1
-    new_day_flag = True
+    now_hour = time.localtime().tm_hour
+    if START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME:
+        new_day_flag = False
+    else:
+        new_day_flag = True
     while True:
         try:
             now_hour = time.localtime().tm_hour
-            print(f'start updating {time.asctime()}')
             if START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME:
                 start_time = datetime.now()
                 updation()
                 end_time = datetime.now()
                 logger.info(f'Время выполнения: {end_time - start_time} секунд.')
-                logger.info('sucsessfull finish updation func\n------------------------------\n')
+                logger.info('sucsessfull finish updation func')
                 new_day_flag = False
-                logger.info('new_day_flag = False')
+                logger.info('new_day_flag = False\n------------------------------\n')
             else:
                 logger.info('сон')
                 new_day_flag = True

@@ -81,7 +81,6 @@ def add_schedule_to_db(tg_id, text):
 
 
 def get_schedule_from_db(tg_id):
-    print('get_schedule_from_db')
     user = get_user(tg_id)
     if user:
         schedule_from_db = user.text
