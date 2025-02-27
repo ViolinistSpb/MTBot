@@ -5,7 +5,7 @@ from telegram import Bot
 from telegram.ext import CommandHandler, Updater, Filters, MessageHandler
 
 from core import (
-    new_cat, registration, start, my_schedule, my_info, help_handle)
+    new_cat, registration, start, my_schedule, my_info, help_handle, delete_me, get_logs)
 from dotenv import load_dotenv
 from logger_config import logger
 
@@ -27,6 +27,8 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('help', help_handle))
     updater.dispatcher.add_handler(CommandHandler('my_info', my_info))
     updater.dispatcher.add_handler(CommandHandler('my_schedule', my_schedule))
+    updater.dispatcher.add_handler(CommandHandler('delete_me', delete_me))
+    updater.dispatcher.add_handler(CommandHandler('logs', get_logs))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, registration))
     updater.start_polling()
     updater.idle()

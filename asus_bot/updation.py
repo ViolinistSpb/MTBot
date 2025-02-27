@@ -23,7 +23,6 @@ END_UPDATING_TIME = 23   # hours
 
 
 def update_user(user):
-    logger.info(f'work with {user.name}')
     schedule = recieve_schedule(user.login, user.password, user.days)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
@@ -33,11 +32,13 @@ def update_user(user):
         ALARM_TEXT = f"""
 ❗Ваше расписание изменилось:\n{diff}\n
 Посмотреть расписание: /my_schedule"""
-        if new_day_flag is False and len(diff) > 20:
-            logger.info(f'LEN DIFF: {len(diff)}')
+        logger.info(f'DIFF LENN: {len(diff)}')
+        logger.debug(f'DIFF:\n{diff}')
+        if new_day_flag is False and len(diff) > 30:
             logger.info(f'SEND NOTIF for {user.name}')
-            logger.debug(f'DIFF:\n{diff}\nOLD_SCHEDULE:\n{user.text}\nNEW_SCHEDULE:\n{schedule}\nfor {user.name}')
             bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
+        if new_day_flag is False and len(diff) <= 30:
+            logger.info(f'NOT SEND NOTIF for {user.name} due small diff')
         else:
             logger.info(f'1st message SKIPPING {user.name}')
 
@@ -47,6 +48,7 @@ def updation():
     tasks = []
     users = get_all_users()
     if users:
+        logger.info(f'LEN USERS: {len(users)}')
         for user in users:
             tasks.append(threading.Thread(target=update_user, args=(user,)))
     for t in tasks:
@@ -70,7 +72,6 @@ if __name__ == "__main__":
                 updation()
                 end_time = datetime.now()
                 logger.info(f'Время выполнения: {end_time - start_time} секунд.')
-                logger.info('sucsessfull finish updation func')
                 new_day_flag = False
                 logger.info('new_day_flag = False\n------------------------------\n')
             else:
