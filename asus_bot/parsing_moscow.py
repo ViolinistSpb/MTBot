@@ -58,10 +58,12 @@ def recieve_schedule(username, password, days):
 
 
 def get_response(username, password):
+    print('get_response()')
     session = requests.session()
-    response = session.get(LOGIN_URL)
+    response = session.get(LOGIN_URL_MSC)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'lxml')
+    print(soup)
     token = soup.find(
         'input', attrs={'name': '__RequestVerificationToken'}
         )['value']
@@ -73,7 +75,7 @@ def get_response(username, password):
         'password': password,
         '__RequestVerificationToken': token
     }
-    response = session.post(LOGIN_URL, data=data)
+    response = session.post(LOGIN_URL_MSC, data=data)
     response = session.get(SCHEDULE_URL)
     soup = BeautifulSoup(response.text, 'lxml')
     if soup.find('hgroup', attrs={'class': 'title'}):

@@ -46,9 +46,9 @@ def diff_func(text1, text2):
     dmp.diff_cleanupSemantic(diff)
     result = ''
     for op, data in diff:
-        if op == -1 and len(data) > 2:
+        if op == -1 and len(data) > 5:
             result += f"😊Удалено: {data}\n"
-        elif op == 1 and len(data) > 2:
+        elif op == 1 and len(data) > 5:
             result += f"🙁Добавлено: {data}"
     return result
 
