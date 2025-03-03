@@ -58,12 +58,10 @@ def updation():
 
 
 if __name__ == "__main__":
-    count = 1
+    count = 0
     now_hour = time.localtime().tm_hour
-    if START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME:
-        new_day_flag = False
-    else:
-        new_day_flag = True
+    new_day_flag = not (
+        START_UPDATING_TIME <= now_hour <= END_UPDATING_TIME)
     while True:
         try:
             now_hour = time.localtime().tm_hour
@@ -72,14 +70,19 @@ if __name__ == "__main__":
                 updation()
                 end_time = datetime.now()
                 logger.info(f'Время выполнения: {end_time - start_time} секунд.')
-                new_day_flag = False
-                logger.info('new_day_flag = False\n------------------------------\n')
+                if new_day_flag is True:
+                    count += 1
+                if new_day_flag is True and count < 2:
+                    new_day_flag = True
+                else:
+                    new_day_flag = False
+                    count = 0
+                logger.info(f'new_day_flag = {new_day_flag}')
             else:
                 logger.info('сон')
                 new_day_flag = True
                 logger.info('new_day_flag = True')
             time.sleep(UPDATE_INTERVAL)
         except Exception as e:
-            print(f"Ошибка: {e}. Повторный запуск {count}/10 через 5 секунд")
-            count += 1
+            logger.error(f'ERROR {e}')
             time.sleep(5)
