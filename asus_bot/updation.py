@@ -20,10 +20,11 @@ bot = Bot(token=ASUS_BOT_TOKEN)
 UPDATE_INTERVAL = 600    # seconds
 START_UPDATING_TIME = 9  # hours
 END_UPDATING_TIME = 23   # hours
+DAYS_TO_SEE = 7
 
 
 def update_user(user):
-    schedule = recieve_schedule(user.login, user.password, user.days)
+    schedule = recieve_schedule(user.login, user.password, DAYS_TO_SEE)
     diff = diff_func(user.text, schedule)
     if add_update_schedule(schedule, user) is True:
         logger.info(f'NO UPD for {user.name}')
@@ -38,9 +39,9 @@ def update_user(user):
             logger.info(f'SEND NOTIF for {user.name}')
             bot.send_message(chat_id=user.tg_id, text=ALARM_TEXT)
         if new_day_flag is False and len(diff) <= 30:
-            logger.info(f'NOT SEND NOTIF for {user.name} due small diff')
+            logger.info(f'NOT SEND SMALL DIFF for {user.name}')
         else:
-            logger.info(f'1st message SKIPPING {user.name}')
+            logger.info(f'1st SKIPPING for {user.name}')
 
 
 def updation():
