@@ -70,7 +70,7 @@ if __name__ == "__main__":
                 start_time = datetime.now()
                 updation()
                 end_time = datetime.now()
-                logger.info(f'Время выполнения: {end_time - start_time} секунд.')
+                logger.info(f'Working time: {end_time - start_time} sec.')
                 if new_day_flag is True:
                     count += 1
                 if new_day_flag is True and count < 2:
