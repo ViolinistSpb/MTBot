@@ -7,7 +7,7 @@ from telegram import Bot
 
 from core import add_update_schedule
 from db import get_all_users
-from parsing_new import recieve_schedule
+from parsing import recieve_schedule
 
 from dotenv import load_dotenv
 from logger_config import logger
@@ -17,7 +17,7 @@ load_dotenv()
 
 ASUS_BOT_TOKEN = os.getenv('ASUS_BOT_TOKEN', "")
 bot = Bot(token=ASUS_BOT_TOKEN)
-UPDATE_INTERVAL = 600    # seconds
+UPDATE_INTERVAL = 900    # seconds
 START_UPDATING_TIME = 9  # hours
 END_UPDATING_TIME = 23   # hours
 DAYS_TO_SEE = 7

@@ -5,7 +5,7 @@ from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE, REGISTRATION_TEXT)
 from db import (add_user, get_user, delete_user, update_day,
                 add_schedule_to_db, get_schedule_from_db)
 from logger_config import logger
-from parsing_new import recieve_schedule, get_response
+from parsing import recieve_schedule, get_response
 from validators import add_markdown, validate_password
 
 
