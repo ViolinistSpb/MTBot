@@ -1,7 +1,8 @@
-from sqlalchemy import (create_engine, Column, insert, Integer,
+from sqlalchemy import (create_engine, Column, delete, insert, Integer,
                         select, String, Text)
 from sqlalchemy.orm import Session, declarative_base
 
+from logger_config import logger
 
 Base = declarative_base()
 
@@ -48,19 +49,18 @@ def get_user(tg_id):
     return user
 
 
-def add_user(tg_id, name, login, password, days):
-    print('add_user')
-    if not get_user(tg_id):
-        print('not exists')
-        session.execute(
-            insert(User).values(
-                tg_id=tg_id,
-                name=name,
-                login=login,
-                password=password,
-                days=days))
-        session.commit()
-        print('sucsess insertion')
+def add_user(tg_id, name, login, password, days, text):
+    logger.info('DB start add_user()')
+    session.execute(
+        insert(User).values(
+            tg_id=tg_id,
+            name=name,
+            login=login,
+            password=password,
+            days=days,
+            text=text))
+    session.commit()
+    logger.info('DB sucsess insertion')
 
 
 def update_day(tg_id, days):
@@ -69,27 +69,29 @@ def update_day(tg_id, days):
     if user:
         user.days = days
         session.commit()
-        print('sucsess days changes')
 
 
 def add_schedule_to_db(tg_id, text):
-    # print('add_schedule_to_db')
     user = get_user(tg_id)
     if user:
         user.text = text
         session.commit()
-        print('sucsess text adding to db')
 
 
 def get_schedule_from_db(tg_id):
-    print('get_schedule_from_db')
     user = get_user(tg_id)
     if user:
         schedule_from_db = user.text
-        print('get text or db')
         return schedule_from_db
 
 
 def get_all_users():
     users = session.scalars(select(User)).all()
     return users
+
+
+def delete_user(user):
+    call = delete(User).where(User.tg_id == user.tg_id)
+    session.execute(call)
+    session.commit()
+    logger.info('DB sucsess deletion user')

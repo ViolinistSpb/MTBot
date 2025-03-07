@@ -2,10 +2,10 @@ import requests
 from telegram import ReplyKeyboardMarkup
 
 from constants import (BUTTONS, DAYS_TRACKING, HELP_MESSAGE, REGISTRATION_TEXT)
-from db import (add_user, get_user, update_day,
+from db import (add_user, get_user, delete_user, update_day,
                 add_schedule_to_db, get_schedule_from_db)
 from logger_config import logger
-from parsing_new import recieve_schedule, get_response
+from parsing import recieve_schedule, get_response
 from validators import add_markdown, validate_password
 
 
@@ -44,8 +44,7 @@ def days(update, context):
 
 
 def registration(update, context):
-    print('registration func')
-    logger.info(f'registration {update.message.chat.first_name}')
+    logger.info(f'registration() for{update.message.chat.first_name}')
     message = update.message.text
     chat_id = update.effective_chat.id
     if message == 'Войти в систему asus':
@@ -56,17 +55,17 @@ def registration(update, context):
         and validate_password(message.split()[1])
         and check_registration(update, context)
     ):
-        print('all valid')
         login = message.split()[0]
         password = message.split()[1]
         tg_id = update.message.chat.id
         name = update.message.chat.first_name
         if get_user(chat_id) is None:  #  changes here
+            logger.info('get_user is None, trying to add to db')
             add_user(tg_id=tg_id, name=name, login=login,
                      password=password, days=DAYS_TRACKING, text='schedule')
             logger.info(f'sucsess regist. {update.message.chat.first_name}')
         else:
-            print('Попытка второй верной авторизации с одного тг аккаунта')
+            logger.info('Double registration trying.')
             text = 'У вас уже есть asus-аккаунт, привязанный к ТГ'
             context.bot.send_message(chat_id=tg_id, text=text)
 
@@ -86,7 +85,6 @@ def my_info(update, context):
 
 
 def my_schedule(update, context):
-    print('my_schedule func')
     logger.info(f'my_schedule {update.message.chat.first_name}')
     chat_id = update.effective_chat.id
     schedule_from_db = get_schedule_from_db(chat_id)
@@ -104,7 +102,6 @@ def my_schedule(update, context):
 
 
 def check_registration(update, context):
-    print('check_registration func')
     logger.info(f'check_registration {update.message.chat.first_name}')
     context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -114,7 +111,6 @@ def check_registration(update, context):
     password = message.split()[1]
     response = get_response(email, password)
     if response:
-        print('status: 200')
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text='Удачная регистрация!')
@@ -129,13 +125,50 @@ def check_registration(update, context):
 
 
 def add_update_schedule(text, user):
-    # logger.info(f'add_schedule_to_db {user.name}')
     chat_id = user.tg_id
     if user.text == text:
         return True
     elif user.text != text:
         add_schedule_to_db(chat_id, text)
         return False
+
+
+def delete_me(update, context):
+    chat_id = update.effective_chat.id
+    logger.info(f'delete_me for {update.message.chat.first_name}')
+    user = get_user(chat_id)
+    delete_user(user)
+
+
+def get_logs(update, context):
+    lines = 20
+    words = update.message.text.split()
+    if len(words) > 1 and words[1].isdigit():
+        lines = int(words[1])
+    chat_id = update.effective_chat.id
+    logs = get_n_lines_logs("asus_bot_logger.log", lines)
+    logs_text = "\n".join(logs)
+    context.bot.send_message(chat_id=chat_id, text=logs_text)
+    logger.info(f'message={update.message.text}, lines={lines}')
+
+
+def get_n_lines_logs(filename, n):
+    with open(filename, 'rb') as file:
+        file.seek(0, 2)
+        file_size = file.tell()
+        buffer_size = 1024
+        data = []
+        lines_found = 0
+        while file_size > 0 and lines_found < n:
+            read_size = min(buffer_size, file_size)
+            file_size -= read_size
+            file.seek(file_size)
+            buffer = file.read(read_size)
+            data.append(buffer)
+            lines_found = buffer.count(b'\n')
+        all_data = b'\n'.join(reversed(data))
+        last_lines = all_data.splitlines()[-n:]
+        return [line.decode('utf-8', errors='ignore') for line in last_lines]
 
 
 def bot_send_day_message(context, update, new_days):

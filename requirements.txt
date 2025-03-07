@@ -48,9 +48,10 @@ tomli==2.0.1
 tornado==6.4.2
 types-beautifulsoup4==4.12.0.20241020
 types-html5lib==1.1.11.20241018
+types-requests==2.32.0.20241016
 typing_extensions==4.11.0
 tzlocal==5.2
 urllib3==2.3.0
 Werkzeug==3.0.0
-WTForms==3.0.1
+WTForms==3.0
 zipp==3.18.1

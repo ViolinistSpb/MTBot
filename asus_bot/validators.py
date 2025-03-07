@@ -14,7 +14,7 @@ def validate_password(password):
 
 def clean_text(text):
     words_to_remove = ["Первые скрипки", "Вторые скрипки", "Альты", "Оркестр",
-                       "Репетиция", "Спектакль", "Виолончели", "Контрабасы"]
+                       "Репетиция", "Спектакль", "Виолончели", "Контрабасы", "лит.р."]
     for word in words_to_remove:
         text = text.replace(word, "")
     pattern = r"\([^()]*\)"
@@ -23,6 +23,13 @@ def clean_text(text):
     text = re.sub(pattern, "", text)
     text = re.sub(r"(?<=[^\s])([А-Я])", r" \1", text)
     text = re.sub(r"(Оркестр)(?!\n)", r"\1", text)
+    text = re.sub(r"Гастроли", r"✈️Гастроли", text)
+    text = re.sub(r"Выходной", r"🎉Выходной", text)
+    text = re.sub(r"\bМ1\b", "🔵М1", text)
+    text = re.sub(r"\bМ2\b", "🟢М2", text)
+    text = re.sub(r"\bМ3\b", "🔴М3", text)
+    text = re.sub(r"\s+,", ",", text)
+    text = text.replace("основная", "осн.")
     return text
 
 
@@ -30,13 +37,11 @@ def add_markdown(text):
     pattern = r"(?<=[^\s\n])(\d{2}:\d{2} - \d{2}:\d{2})"
     text = re.sub(pattern, r"\n\1", text)
     pattern = r"([А-Я][а-я]) (\d{2}\.\d{2}\.\d{4})"
-    text = re.sub(pattern, r"\n<b>\1 \2</b>", text)  # add \n
+    text = re.sub(pattern, r"<b>\1 \2</b>", text)  # add \n
     pattern = r"(\d{2}:\d{2})( - )(\d{2}:\d{2})"
     text = re.sub(pattern, r"<i>\1\2\3</i>", text)
     pattern = r"([MМ][123])"
     text = re.sub(pattern, r"<b><i>\1</i></b>", text)
-    text = re.sub(r"Гастроли", r"✈️Гастроли", text)
-    text = re.sub(r"Выходной", r"🎉Выходной", text)
     return text
 
 
@@ -46,10 +51,10 @@ def diff_func(text1, text2):
     dmp.diff_cleanupSemantic(diff)
     result = ''
     for op, data in diff:
-        if op == -1:
-            result += f"Удалено: {data}\n"
-        elif op == 1:
-            result += f"Добавлено: {data}"
+        if op == -1 and len(data) > 5:
+            result += f"😊Удалено: {data}\n"
+        elif op == 1 and len(data) > 5:
+            result += f"🙁Добавлено: {data}"
     return result
 
 
