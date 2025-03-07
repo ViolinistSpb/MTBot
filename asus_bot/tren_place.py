@@ -17,8 +17,8 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 # USERNAME = os.getenv('USERNAME')  # asus username
 # USERPASSWORD = os.getenv('USERPASSWORD')  # asus password
 
-USERNAME = 'novodranao@mariinsky.ru'
-USERPASSWORD = '10102011'
+USERNAME = 'lan'
+USERPASSWORD = 'vitaly_pugachev13.11.1989'
 DAYS_TO_SEE = 7
 
 start_time = datetime.now()

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import requests
 import telegram
 
-from constants import nums
+from constants import nums, maestros
 from validators import add_markdown, clean_text
 
 
@@ -107,7 +107,7 @@ def recieve_schedule(username, password, days):
                 FULL_LINK = urljoin(MAIN_URL, link['href'])
                 maestro, place = find_place(session, surname, FULL_LINK)
                 event_message = (
-                    f'{TIME}\n{THEATRE}, место {nums[place]}\n{PLAY}, {maestro}'
+                    f"{TIME}\n{THEATRE}, место {nums[place]}\n{PLAY}, {maestro}"
                 )
             if link is None:  # free day
                 event_message = (f'{TYPE}')
