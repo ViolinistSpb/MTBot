@@ -33,6 +33,24 @@ MAIN_URL = 'https://rep.mariinsky.ru/'
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 
+def find_place(session, surname, link):
+    response = session.get(link)
+    soup = BeautifulSoup(response.text, 'lxml')
+    divs = soup.find_all('div', class_='color0')
+    maestro = divs[0].text.strip()
+    if len(maestro.split()) > 1:
+        maestro = ''
+    for div in divs:
+        if surname in div.text:
+            place = div.find('span').text
+            if maestro != '' and maestro in (
+                "Гергиев", "Кнапп", "Петросян", "Рылов", "Шупляков"
+            ):
+                maestro = 'дир. ' + maestro
+            break
+    return maestro, place  # Возвращает список кортежей (дирижер, место)
+
+
 def get_response(username, password):
     session = requests.session()
     response = session.get(LOGIN_URL)
@@ -95,22 +113,7 @@ def recieve_schedule(username, password, days):
                 event_message = (f'{TYPE}')
             message_to_user += f'{event_message}\n'
         message_to_user += '\n'
-    # return clean_text(message_to_user)
-    clean = clean_text(message_to_user)
-    bot.send_message(TELEGRAM_CHAT_ID, add_markdown(clean), parse_mode="HTML")
+    return clean_text(message_to_user)
+    # clean = clean_text(message_to_user)
+    # bot.send_message(TELEGRAM_CHAT_ID, add_markdown(clean), parse_mode="HTML")
 
-
-def find_place(session, surname, link):
-    response = session.get(link)
-    soup = BeautifulSoup(response.text, 'lxml')
-    divs = soup.find_all('div', class_='color0')
-    maestro = divs[0].text.strip()
-    if len(maestro.split()) > 1:
-        maestro = ''
-    for div in divs:
-        if surname in div.text:
-            place = div.find('span').text
-            if maestro != '' and maestro in ("Гергиев", "Кнапп", "Петросян"):
-                maestro = 'дир. ' + maestro
-            break
-    return maestro, place  # Возвращает список кортежей (дирижер, место)
