@@ -8,7 +8,7 @@ import requests
 import telegram
 
 from constants import nums, maestros
-from validators import add_markdown, clean_text
+from validators import clean_text
 
 
 load_dotenv()
@@ -43,9 +43,7 @@ def find_place(session, surname, link):
     for div in divs:
         if surname in div.text:
             place = div.find('span').text
-            if maestro != '' and maestro in (
-                "Гергиев", "Кнапп", "Петросян", "Рылов", "Шупляков"
-            ):
+            if maestro != '' and maestro in maestros:
                 maestro = 'дир. ' + maestro
             break
     return maestro, place  # Возвращает список кортежей (дирижер, место)
@@ -89,7 +87,7 @@ def recieve_schedule(username, password, days):
     table = soup.find('table', attrs={'class': 'table table-hover'})
     all_tr = table.find_all('tr')
     message_to_user = ''
-    this_week = all_tr[1:8]
+    this_week = all_tr[1:(1+days)]
     for tr_one_day in this_week:
         tds_of_one_day = tr_one_day.find_all('td')
         DATE = tds_of_one_day[0].text.strip()
@@ -116,4 +114,3 @@ def recieve_schedule(username, password, days):
     return clean_text(message_to_user)
     # clean = clean_text(message_to_user)
     # bot.send_message(TELEGRAM_CHAT_ID, add_markdown(clean), parse_mode="HTML")
-

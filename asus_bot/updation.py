@@ -31,7 +31,7 @@ def update_user(user):
     else:
         logger.info(f'UPDATION for {user.name}')
         ALARM_TEXT = f"""
-❗Ваше расписание изменилось:\n{diff}\n
+❗Ваше расписание изменилось:\n\n{diff}
 Посмотреть расписание: /my_schedule"""
         logger.info(f'DIFF LENN: {len(diff)}')
         logger.debug(f'DIFF:\n{diff}')

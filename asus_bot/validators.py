@@ -25,9 +25,9 @@ def clean_text(text):
     text = re.sub(r"(Оркестр)(?!\n)", r"\1", text)
     text = re.sub(r"Гастроли", r"✈️Гастроли", text)
     text = re.sub(r"Выходной", r"🎉Выходной", text)
-    text = re.sub(r"\bМ1\b", "🔵М1", text)
-    text = re.sub(r"\bМ2\b", "🟢М2", text)
-    text = re.sub(r"\bМ3\b", "🔴М3", text)
+    text = re.sub(r"\bМ1\b", "🔵 М1", text)
+    text = re.sub(r"\bМ2\b", "🟢 М2", text)
+    text = re.sub(r"\bМ3\b", "🔴 М3", text)
     text = re.sub(r"\s+,", ",", text)
     text = text.replace("основная", "осн.")
     return text
@@ -52,9 +52,9 @@ def diff_func(text1, text2):
     result = ''
     for op, data in diff:
         if op == -1 and len(data) > 5:
-            result += f"😊Удалено: {data}\n"
+            result += f"❌ {data}\n"
         elif op == 1 and len(data) > 5:
-            result += f"🙁Добавлено: {data}"
+            result += f"➕ {data}\n"
     return result
 
 

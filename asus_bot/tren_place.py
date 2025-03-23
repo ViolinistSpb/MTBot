@@ -19,9 +19,10 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 USERNAME = 'lan'
 USERPASSWORD = 'vitaly_pugachev13.11.1989'
-DAYS_TO_SEE = 7
+DAYS_TO_SEE = 15
 
 start_time = datetime.now()
-recieve_schedule(USERNAME, USERPASSWORD, DAYS_TO_SEE)
+schedule = recieve_schedule(USERNAME, USERPASSWORD, DAYS_TO_SEE)
 end_time = datetime.now()
 print(f'Working time: {end_time - start_time} sec.')
+print(schedule)
