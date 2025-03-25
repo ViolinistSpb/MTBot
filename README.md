@@ -67,6 +67,70 @@ python asus_bot.py
 python updation.py
 ```
 
+## Настройка и запуск проекта на удаленном серввере
+
+**Создание systemd-юнитов**
+
+1.
+```ini
+nano /etc/systemd/system/telegram_bot.service
+```
+```ini
+[Unit]
+Description=Telegram Bot Polling
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/asus_bot/asus_bot
+ExecStart=/root/asus_bot/venv/bin/python3 /root/asus_bot/asus_bot/asus_bot.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+2.
+```ini
+nano /etc/systemd/system/telegram_bot.service
+```
+```ini
+[Unit]
+Description=Telegram Bot Updating
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/asus_bot/asus_bot
+ExecStart=/root/asus_bot/venv/bin/python3 /root/asus_bot/asus_bot/updation.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Применение настроек и запуск сервисов**
+
+```ini
+systemctl daemon-reload
+systemctl start telegram_bot
+systemctl start telegram_bot_updation
+systemctl enable telegram_bot
+systemctl enable telegram_bot_updation
+```
+
+**Настройка сервиса Cron для автоматического перезапуска сервисов**
+
+```ini
+crontab -e
+```
+```ini
+# добавьте строку в файл настроек (тут каждые 2 часа в 30 минут каждого часа)
+30 */2 * * * systemctl restart telegram_bot.service ; systemctl restart telegram_bot_updation.service
+```
+
 ## Автор проекта
 
 [Виталий Мальков](https://github.com/ViolinistSpb)<br>
